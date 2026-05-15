@@ -409,15 +409,27 @@ async function handleUpdate(e) {
 }
 
 async function handleDelete(id) {
-    if (!confirm('Delete this candidate?')) return;
+    const deleteId = id || document.getElementById('edit-id').value;
+    if (!deleteId) {
+        alert('No Candidate ID found to delete.');
+        return;
+    }
+
+    if (!confirm('Are you sure you want to delete this candidate?')) return;
     showLoader();
     try {
-        const res = await fetch(`${API_URL}/candidates/${id}`, { method: 'DELETE' });
+        const res = await fetch(`${API_URL}/candidates/${deleteId}`, { method: 'DELETE' });
         if (res.ok) {
-            alert('Deleted!');
+            alert('Record Deleted Successfully!');
             location.reload();
+        } else {
+            const error = await res.json();
+            alert('Delete failed: ' + error.error);
         }
-    } catch (err) { alert('Delete simulated.'); location.reload(); }
+    } catch (err) { 
+        console.error('Delete error:', err);
+        alert('Could not delete record. Check console for details.'); 
+    }
     hideLoader();
 }
 
