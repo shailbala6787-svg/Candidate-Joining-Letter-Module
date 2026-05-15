@@ -99,8 +99,10 @@ app.get('/api/candidates', async (req, res) => {
         }
         const { data, error } = await query.order('sr_no', { ascending: true });
         if (error) throw error;
+        console.log(`[GET] Candidates fetched: ${data?.length || 0}`);
         res.json(data.map(mapToFrontend));
     } catch (err) {
+        console.error('[GET] Fetch error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
@@ -155,12 +157,18 @@ app.post('/api/candidates/bulk-upload', upload.single('file'), async (req, res) 
         worksheet.eachRow((row, rowNumber) => {
             if (rowNumber === 1) return; // Skip header
 
+            const rollNo = row.getCell(3).value?.toString() || '';
+            const regNo = row.getCell(4).value?.toString() || '';
+            
+            // Use Roll No as part of ID to make it consistent/unique
+            const generatedId = `UPP-${rollNo || Math.floor(Math.random() * 9000) + 1000}`;
+
             const candidate = {
+                id: generatedId,
                 sr_no: parseInt(row.getCell(1).value) || 0,
-                id: `UPP-${Math.floor(Math.random() * 9000) + 1000}`, // Auto-generate ID
                 merit_no: row.getCell(2).value?.toString() || '',
-                roll_no: row.getCell(3).value?.toString() || '',
-                reg_no: row.getCell(4).value?.toString() || '',
+                roll_no: rollNo,
+                reg_no: regNo,
                 name: row.getCell(5).value?.toString() || '',
                 father_name: row.getCell(6).value?.toString() || '',
                 mobile: row.getCell(7).value?.toString() || '',
@@ -207,6 +215,11 @@ app.put('/api/candidates/:id', async (req, res) => {
 
 app.delete('/api/candidates/:id', async (req, res) => {
     try {
+        if (req.params.id === 'all') {
+            const { error } = await supabase.from('candidates').delete().neq('id', '0'); // Delete all rows
+            if (error) throw error;
+            return res.json({ message: 'All records deleted successfully' });
+        }
         const { error } = await supabase.from('candidates').delete().eq('id', req.params.id);
         if (error) throw error;
         res.json({ message: 'Deleted' });
@@ -272,8 +285,10 @@ app.get('/api/stats', async (req, res) => {
             verifiedEWS: data.filter(c => c.verify_status_ews === 'Verified').length,
             postingAssigned: data.filter(c => c.posting_district && c.posting_district !== 'Unassigned' && c.posting_district !== '').length
         };
+        console.log(`[GET] Stats calculated for ${data?.length || 0} candidates`);
         res.json(stats);
     } catch (err) {
+        console.error('[GET] Stats error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
@@ -282,8 +297,10 @@ app.get('/api/districts', async (req, res) => {
     try {
         const { data, error } = await supabase.from('districts').select('name').order('name');
         if (error) throw error;
+        console.log(`[GET] Districts fetched: ${data?.length || 0}`);
         res.json(data.map(d => d.name));
     } catch (err) {
+        console.error('[GET] Districts error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });

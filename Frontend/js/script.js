@@ -1,5 +1,5 @@
-const API_URL = 'http://localhost:5000/api';
-
+// const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://candidate-joining-letter-module.onrender.com/api';
 // Authentication Check
 if (!window.location.pathname.includes('login.html')) {
     if (localStorage.getItem('isLoggedIn') !== 'true') {
@@ -37,13 +37,13 @@ let allotPageSize = 10;
 const getLoader = () => document.getElementById('loader');
 
 // Loader Utils
-function showLoader() { 
+function showLoader() {
     const loader = getLoader();
-    if (loader) loader.style.display = 'flex'; 
+    if (loader) loader.style.display = 'flex';
 }
-function hideLoader() { 
+function hideLoader() {
     const loader = getLoader();
-    if (loader) loader.style.display = 'none'; 
+    if (loader) loader.style.display = 'none';
 }
 
 // --- Pagination Helpers ---
@@ -73,7 +73,7 @@ async function fetchData() {
             fetch(`${API_URL}/candidates`).then(r => r.json()),
             fetch(`${API_URL}/stats`).then(r => r.json())
         ];
-        
+
         // Only fetch districts once per page load/session if possible
         if (districts.length === 0) {
             fetchTasks.push(fetch(`${API_URL}/districts`).then(r => r.json()));
@@ -83,18 +83,18 @@ async function fetchData() {
         candidates = results[0];
         stats = results[1];
         if (results[2]) districts = results[2];
-        
+
     } catch (err) {
         console.error('Error fetching data:', err);
         // Fallback dummy data for demo if backend is unreachable
         districts = [
-            "Agra", "Aligarh", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Ayodhya", "Azamgarh", "Baghpat", "Bahraich", 
-            "Ballia", "Balrampur", "Banda", "Barabanki", "Bareilly", "Basti", "Bhadohi", "Bijnor", "Budaun", "Bulandshahr", 
-            "Chandauli", "Chitrakoot", "Deoria", "Etah", "Etawah", "Farrukhabad", "Fatehpur", "Firozabad", "Gautam Buddha Nagar", 
-            "Ghaziabad", "Ghazipur", "Gonda", "Gorakhpur", "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur", "Jhansi", 
-            "Kannauj", "Kanpur Dehat", "Kanpur Nagar", "Kasganj", "Kaushambi", "Kushinagar", "Lakhimpur Kheri", "Lalitpur", 
-            "Lucknow", "Maharajganj", "Mahoba", "Mainpuri", "Mathura", "Mau", "Meerut", "Mirzapur", "Moradabad", "Muzaffarnagar", 
-            "Pilibhit", "Pratapgarh", "Prayagraj", "Rae Bareli", "Rampur", "Saharanpur", "Sambhal", "Sant Kabir Nagar", 
+            "Agra", "Aligarh", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Ayodhya", "Azamgarh", "Baghpat", "Bahraich",
+            "Ballia", "Balrampur", "Banda", "Barabanki", "Bareilly", "Basti", "Bhadohi", "Bijnor", "Budaun", "Bulandshahr",
+            "Chandauli", "Chitrakoot", "Deoria", "Etah", "Etawah", "Farrukhabad", "Fatehpur", "Firozabad", "Gautam Buddha Nagar",
+            "Ghaziabad", "Ghazipur", "Gonda", "Gorakhpur", "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur", "Jhansi",
+            "Kannauj", "Kanpur Dehat", "Kanpur Nagar", "Kasganj", "Kaushambi", "Kushinagar", "Lakhimpur Kheri", "Lalitpur",
+            "Lucknow", "Maharajganj", "Mahoba", "Mainpuri", "Mathura", "Mau", "Meerut", "Mirzapur", "Moradabad", "Muzaffarnagar",
+            "Pilibhit", "Pratapgarh", "Prayagraj", "Rae Bareli", "Rampur", "Saharanpur", "Sambhal", "Sant Kabir Nagar",
             "Shahjahanpur", "Shamli", "Shravasti", "Siddharthnagar", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao", "Varanasi", "Other"
         ];
         candidates = [
@@ -118,12 +118,12 @@ function getStatusClass(status) {
 async function initDashboard() {
     showLoader();
     await fetchData();
-    
+
     const statsContainer = document.getElementById('dashboard-stats');
     if (statsContainer) {
         // Recalculate postingAssigned locally to ensure accuracy
         const localPostingCount = candidates.filter(c => c.postingDistrict && c.postingDistrict !== 'Unassigned' && c.postingDistrict !== 'Not Allotted' && c.postingDistrict !== '').length;
-        
+
         statsContainer.innerHTML = `
             ${renderStatCard('Total Candidates', stats.totalCandidates || 0, 'fa-users', 'icon-blue')}
             ${renderStatCard('10th Verified', stats.verified10th || 0, 'fa-award', 'icon-gold')}
@@ -211,7 +211,7 @@ function initCharts() {
     candidates.forEach(c => {
         districtCounts[c.district] = (districtCounts[c.district] || 0) + 1;
     });
-    
+
     const topDistricts = Object.entries(districtCounts)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 4);
@@ -222,10 +222,10 @@ function initCharts() {
             type: 'bar',
             data: {
                 labels: ['Verified', 'Pending'],
-                datasets: [{ 
-                    label: 'Candidates Count', 
-                    data: [verificationData.verified, verificationData.pending], 
-                    backgroundColor: ['#27ae60', '#f1c40f'] 
+                datasets: [{
+                    label: 'Candidates Count',
+                    data: [verificationData.verified, verificationData.pending],
+                    backgroundColor: ['#27ae60', '#f1c40f']
                 }]
             },
             options: { responsive: true, scales: { y: { beginAtZero: true } } }
@@ -238,9 +238,9 @@ function initCharts() {
             type: 'doughnut',
             data: {
                 labels: topDistricts.map(d => d[0]),
-                datasets: [{ 
-                    data: topDistricts.map(d => d[1]), 
-                    backgroundColor: ['#002147', '#f1c40f', '#27ae60', '#e74c3c'] 
+                datasets: [{
+                    data: topDistricts.map(d => d[1]),
+                    backgroundColor: ['#002147', '#f1c40f', '#27ae60', '#e74c3c']
                 }]
             }
         });
@@ -271,7 +271,7 @@ async function handleRegistration(e) {
     } catch (err) {
         alert('API Error. Candidate added to local list for demo.');
         const newCand = Object.fromEntries(formData);
-        newCand.id = `UPP-${Math.floor(Math.random()*9000)}`;
+        newCand.id = `UPP-${Math.floor(Math.random() * 9000)}`;
         newCand.status = 'Pending';
         candidates.push(newCand);
         window.location.href = 'candidate-edit.html';
@@ -281,11 +281,11 @@ async function handleRegistration(e) {
 
 async function handleBulkUpload(input) {
     if (!input.files || !input.files[0]) return;
-    
+
     const file = input.files[0];
     const formData = new FormData();
     formData.append('file', file);
-    
+
     showLoader();
     try {
         const res = await fetch(`${API_URL}/candidates/bulk-upload`, {
@@ -370,16 +370,16 @@ function openEditModal(id) {
     const cand = candidates.find(c => c.id === id);
     if (!cand) return;
     document.getElementById('edit-id').value = cand.id;
-    if(document.getElementById('edit-merit')) document.getElementById('edit-merit').value = cand.meritNo || '';
-    if(document.getElementById('edit-roll')) document.getElementById('edit-roll').value = cand.rollNo || '';
-    if(document.getElementById('edit-reg')) document.getElementById('edit-reg').value = cand.regNo || '';
-    if(document.getElementById('edit-selectedAs')) document.getElementById('edit-selectedAs').value = cand.selectedAs || 'UR';
-    if(document.getElementById('edit-verifyStatus10')) document.getElementById('edit-verifyStatus10').value = cand.verifyStatus10 || 'Verified';
-    if(document.getElementById('edit-verifyStatus12')) document.getElementById('edit-verifyStatus12').value = cand.verifyStatus12 || 'Verified';
-    if(document.getElementById('edit-verifyStatusTech')) document.getElementById('edit-verifyStatusTech').value = cand.verifyStatusTech || 'Verified';
-    if(document.getElementById('edit-verifyStatusDomicile')) document.getElementById('edit-verifyStatusDomicile').value = cand.verifyStatusDomicile || 'Verified';
-    if(document.getElementById('edit-verifyStatusCaste')) document.getElementById('edit-verifyStatusCaste').value = cand.verifyStatusCaste || 'Verified';
-    if(document.getElementById('edit-verifyStatusEWS')) document.getElementById('edit-verifyStatusEWS').value = cand.verifyStatusEWS || 'Verified';
+    if (document.getElementById('edit-merit')) document.getElementById('edit-merit').value = cand.meritNo || '';
+    if (document.getElementById('edit-roll')) document.getElementById('edit-roll').value = cand.rollNo || '';
+    if (document.getElementById('edit-reg')) document.getElementById('edit-reg').value = cand.regNo || '';
+    if (document.getElementById('edit-selectedAs')) document.getElementById('edit-selectedAs').value = cand.selectedAs || 'UR';
+    if (document.getElementById('edit-verifyStatus10')) document.getElementById('edit-verifyStatus10').value = cand.verifyStatus10 || 'Verified';
+    if (document.getElementById('edit-verifyStatus12')) document.getElementById('edit-verifyStatus12').value = cand.verifyStatus12 || 'Verified';
+    if (document.getElementById('edit-verifyStatusTech')) document.getElementById('edit-verifyStatusTech').value = cand.verifyStatusTech || 'Verified';
+    if (document.getElementById('edit-verifyStatusDomicile')) document.getElementById('edit-verifyStatusDomicile').value = cand.verifyStatusDomicile || 'Verified';
+    if (document.getElementById('edit-verifyStatusCaste')) document.getElementById('edit-verifyStatusCaste').value = cand.verifyStatusCaste || 'Verified';
+    if (document.getElementById('edit-verifyStatusEWS')) document.getElementById('edit-verifyStatusEWS').value = cand.verifyStatusEWS || 'Verified';
     document.getElementById('edit-name').value = cand.name;
     document.getElementById('edit-father').value = cand.fatherName;
     document.getElementById('edit-mobile').value = cand.mobile;
@@ -426,9 +426,9 @@ async function handleDelete(id) {
             const error = await res.json();
             alert('Delete failed: ' + error.error);
         }
-    } catch (err) { 
+    } catch (err) {
         console.error('Delete error:', err);
-        alert('Could not delete record. Check console for details.'); 
+        alert('Could not delete record. Check console for details.');
     }
     hideLoader();
 }
@@ -620,10 +620,10 @@ function openAllotmentModal(id) {
 
     // 2. Exclude all districts in the Home Division (Neighbors/Self)
     const homeDivDistricts = homeDiv ? UP_DIVISIONS[homeDiv] : [homeDist];
-    
+
     // 3. Find Suggested Posting Divisions
     const targetDivs = DIVISION_POSTING_MAP[homeDiv] || Object.keys(UP_DIVISIONS).filter(d => d !== homeDiv);
-    
+
     // 4. Collect candidates from target divisions
     let suggested = [];
     targetDivs.forEach(div => {
@@ -645,7 +645,7 @@ function openAllotmentModal(id) {
     if (availableDistricts.length > 5) {
         availableDistricts = availableDistricts.sort(() => 0.5 - Math.random()).slice(0, 5);
     }
-    
+
     // 7. Fallback if something goes wrong
     if (availableDistricts.length === 0) {
         availableDistricts = districts.filter(d => !homeDivDistricts.includes(d)).slice(0, 5);
@@ -750,7 +750,7 @@ function openLetterPreview(id) {
     document.getElementById('l-address').innerText = c.address || 'N/A';
     document.getElementById('l-address2').innerText = c.address || 'N/A';
     document.getElementById('l-district').innerText = c.district || 'N/A';
-    
+
     const today = new Date().toLocaleDateString('en-GB');
     document.getElementById('l-date').innerText = today;
     document.getElementById('l-date2').innerText = today;
@@ -764,9 +764,9 @@ function closeLetterModal() {
 
 async function printLetterContent() {
     if (!currentPreviewId) return;
-    
+
     const printContents = document.getElementById('printable-letter').innerHTML;
-    
+
     // Mark as issued in DB
     try {
         await fetch(`${API_URL}/candidates/${currentPreviewId}/issue-letter`, { method: 'POST' });
