@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Entry | UP Police</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="loader-wrapper" id="loader"><div class="loader"></div></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container"><img src="assets/images/logo.png" alt="UP Police Logo"></div>
+            <h2>Uttar Pradesh Police</h2>
+            <p>Joining Letter & Posting Allotment</p>
+        </div>
+        <ul class="menu">
+            <li><a href="dashboard.html"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a></li>
+            <li class="active"><a href="candidate-entry.html"><i class="fa-solid fa-user-plus"></i><span>Candidate Entry</span></a></li>
+            <li><a href="candidate-edit.html"><i class="fa-solid fa-user-pen"></i><span>Candidate Edit</span></a></li>
+            <li><a href="certificate-details.html"><i class="fa-solid fa-certificate"></i><span>Certificate Details</span></a></li>
+            <li><a href="joining-letter.html"><i class="fa-solid fa-file-signature"></i><span>Joining Letter Issue</span></a></li>
+            <li><a href="posting-allotment.html"><i class="fa-solid fa-map-location-dot"></i><span>Posting Allotment</span></a></li>
+            <li class="logout-btn"><a href="login.html"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-navbar">
+            <div class="nav-left"><h3>Candidate Registration Form</h3></div>
+            <div class="nav-right">
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=002147&color=fff" alt="Admin">
+                    <span>Admin Panel</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Bulk Upload Section -->
+            <div class="form-container fade-in" style="margin-bottom: 30px; border: 2px dashed var(--primary-color); background: rgba(0, 33, 71, 0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <h4 style="color: var(--primary-color); margin-bottom: 5px;"><i class="fa-solid fa-file-import"></i> Bulk Data Upload</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Download the sample Excel file, fill the candidate data, and upload here.</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <a href="http://localhost:5000/api/candidates/sample-excel" class="btn btn-secondary" style="font-size: 0.8rem;">
+                            <i class="fa-solid fa-download"></i> Download Sample Excel
+                        </a>
+                        <label class="btn btn-primary" style="font-size: 0.8rem; cursor: pointer;">
+                            <i class="fa-solid fa-upload"></i> Upload Excel File
+                            <input type="file" id="bulkUploadInput" hidden accept=".xlsx, .xls" onchange="handleBulkUpload(this)">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-container fade-in">
+                <form id="regForm" onsubmit="handleRegistration(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Sr. No.</label>
+                            <input type="number" name="srNo" placeholder="Sr. No.">
+                        </div>
+                        <div class="form-group">
+                            <label>Merit No.</label>
+                            <input type="number" name="meritNo" placeholder="Merit No.">
+                        </div>
+                        <div class="form-group">
+                            <label>Roll Number</label>
+                            <input type="text" name="rollNo" placeholder="Roll No.">
+                        </div>
+                        <div class="form-group">
+                            <label>Registration Number</label>
+                            <input type="text" name="regNo" placeholder="Registration No.">
+                        </div>
+                        <div class="form-group">
+                            <label>Candidate Full Name</label>
+                            <input type="text" name="name" required placeholder="Full Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Father's Name</label>
+                            <input type="text" name="fatherName" required placeholder="Father's Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Mobile Number</label>
+                            <input type="tel" name="mobile" required pattern="[0-9]{10}" placeholder="Mobile No.">
+                        </div>
+                        <div class="form-group">
+                            <label>Email ID</label>
+                            <input type="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>District</label>
+                            <select name="district" id="district-select"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Selected As</label>
+                            <select name="selectedAs">
+                                <option value="UR">UR</option>
+                                <option value="EWS">EWS</option>
+                                <option value="OBC">OBC</option>
+                                <option value="SC">SC</option>
+                                <option value="ST">ST</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>10th Verification Status</label>
+                            <select name="verifyStatus10">
+                                <option value="Verified">Verified</option>
+                                <option value="Need to Offline Verified">Need to Offline Verified</option>
+                                <option value="Offline Verified">Offline Verified</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>12th Verification Status</label>
+                            <select name="verifyStatus12">
+                                <option value="Verified">Verified</option>
+                                <option value="Need to Offline Verified">Need to Offline Verified</option>
+                                <option value="Offline Verified">Offline Verified</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tech Verification Status</label>
+                            <select name="verifyStatusTech">
+                                <option value="Verified">Verified</option>
+                                <option value="Need to Offline Verified">Need to Offline Verified</option>
+                                <option value="Offline Verified">Offline Verified</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>DOMICILE Verification Status</label>
+                            <select name="verifyStatusDomicile">
+                                <option value="Verified">Verified</option>
+                                <option value="Need to Offline Verified">Need to Offline Verified</option>
+                                <option value="Offline Verified">Offline Verified</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>CASTE Verification Status</label>
+                            <select name="verifyStatusCaste">
+                                <option value="Verified">Verified</option>
+                                <option value="Need to Offline Verified">Need to Offline Verified</option>
+                                <option value="Offline Verified">Offline Verified</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>EWS Verification Status</label>
+                            <select name="verifyStatusEWS">
+                                <option value="Verified">Verified</option>
+                                <option value="Need to Offline Verified">Need to Offline Verified</option>
+                                <option value="Offline Verified">Offline Verified</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Permanent Address</label>
+                            <textarea name="address" rows="3" placeholder="Full Address"></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: flex-end;">
+                        <button type="reset" class="btn btn-secondary"><i class="fa-solid fa-rotate-left"></i> Reset Button</button>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Submit Button</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/script.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            initRegistrationForm();
+        });
+    </script>
+</body>
+</html>
