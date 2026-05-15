@@ -105,7 +105,7 @@ app.get('/api/candidates', async (req, res) => {
     }
 });
 
-// Sample Excel Download with ALL columns
+// Sample Excel Download (REMOVED Candidate ID)
 app.get('/api/candidates/sample-excel', async (req, res) => {
     try {
         const workbook = new ExcelJS.Workbook();
@@ -113,7 +113,6 @@ app.get('/api/candidates/sample-excel', async (req, res) => {
         
         worksheet.columns = [
             { header: 'Sr. No.', key: 'sr_no', width: 8 },
-            { header: 'Candidate ID', key: 'id', width: 15 },
             { header: 'Merit No.', key: 'merit_no', width: 12 },
             { header: 'Roll No.', key: 'roll_no', width: 15 },
             { header: 'Reg No.', key: 'reg_no', width: 15 },
@@ -132,10 +131,10 @@ app.get('/api/candidates/sample-excel', async (req, res) => {
             { header: 'EWS Status', key: 'vews', width: 15 }
         ];
 
-        worksheet.addRow([1, 'UPP-1001', '501', '12345678', '9876543', 'Amit Sharma', 'Rajesh Sharma', '9876543210', 'amit@example.com', 'Lucknow', 'House 123, Street 4, Lucknow', 'UR', 'Verified', 'Verified', 'Verified', 'Verified', 'Verified', 'N/A']);
+        worksheet.addRow([1, '501', '12345678', '9876543', 'Amit Sharma', 'Rajesh Sharma', '9876543210', 'amit@example.com', 'Lucknow', 'House 123, Street 4, Lucknow', 'UR', 'Verified', 'Verified', 'Verified', 'Verified', 'Verified', 'N/A']);
 
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.setHeader('Content-Disposition', 'attachment; filename=UP_Police_Full_Sample.xlsx');
+        res.setHeader('Content-Disposition', 'attachment; filename=UP_Police_Bulk_Template.xlsx');
         await workbook.xlsx.write(res);
         res.end();
     } catch (err) {
@@ -143,7 +142,7 @@ app.get('/api/candidates/sample-excel', async (req, res) => {
     }
 });
 
-// Bulk Upload (Updated to handle more columns)
+// Bulk Upload (Updated indices for removed ID column)
 app.post('/api/candidates/bulk-upload', upload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
@@ -158,23 +157,23 @@ app.post('/api/candidates/bulk-upload', upload.single('file'), async (req, res) 
 
             const candidate = {
                 sr_no: parseInt(row.getCell(1).value) || 0,
-                id: row.getCell(2).value?.toString() || `UPP-${Math.floor(Math.random() * 9000) + 1000}`,
-                merit_no: row.getCell(3).value?.toString() || '',
-                roll_no: row.getCell(4).value?.toString() || '',
-                reg_no: row.getCell(5).value?.toString() || '',
-                name: row.getCell(6).value?.toString() || '',
-                father_name: row.getCell(7).value?.toString() || '',
-                mobile: row.getCell(8).value?.toString() || '',
-                email: row.getCell(9).value?.toString() || '',
-                district: row.getCell(10).value?.toString() || '',
-                address: row.getCell(11).value?.toString() || '',
-                selected_as: row.getCell(12).value?.toString() || 'UR',
-                verify_status_10: row.getCell(13).value?.toString() || 'Pending',
-                verify_status_12: row.getCell(14).value?.toString() || 'Pending',
-                verify_status_tech: row.getCell(15).value?.toString() || 'Pending',
-                verify_status_domicile: row.getCell(16).value?.toString() || 'Pending',
-                verify_status_caste: row.getCell(17).value?.toString() || 'Pending',
-                verify_status_ews: row.getCell(18).value?.toString() || 'Pending',
+                id: `UPP-${Math.floor(Math.random() * 9000) + 1000}`, // Auto-generate ID
+                merit_no: row.getCell(2).value?.toString() || '',
+                roll_no: row.getCell(3).value?.toString() || '',
+                reg_no: row.getCell(4).value?.toString() || '',
+                name: row.getCell(5).value?.toString() || '',
+                father_name: row.getCell(6).value?.toString() || '',
+                mobile: row.getCell(7).value?.toString() || '',
+                email: row.getCell(8).value?.toString() || '',
+                district: row.getCell(9).value?.toString() || '',
+                address: row.getCell(10).value?.toString() || '',
+                selected_as: row.getCell(11).value?.toString() || 'UR',
+                verify_status_10: row.getCell(12).value?.toString() || 'Pending',
+                verify_status_12: row.getCell(13).value?.toString() || 'Pending',
+                verify_status_tech: row.getCell(14).value?.toString() || 'Pending',
+                verify_status_domicile: row.getCell(15).value?.toString() || 'Pending',
+                verify_status_caste: row.getCell(16).value?.toString() || 'Pending',
+                verify_status_ews: row.getCell(17).value?.toString() || 'Pending',
                 status: 'Pending'
             };
             candidatesToInsert.push(candidate);
@@ -190,7 +189,7 @@ app.post('/api/candidates/bulk-upload', upload.single('file'), async (req, res) 
     }
 });
 
-// Update Candidate
+// Update, Delete, Verify, Allot, Issue, Stats, Districts (Already correct)
 app.put('/api/candidates/:id', async (req, res) => {
     try {
         const { data, error } = await supabase
@@ -206,7 +205,6 @@ app.put('/api/candidates/:id', async (req, res) => {
     }
 });
 
-// Delete Candidate
 app.delete('/api/candidates/:id', async (req, res) => {
     try {
         const { error } = await supabase.from('candidates').delete().eq('id', req.params.id);
@@ -217,7 +215,6 @@ app.delete('/api/candidates/:id', async (req, res) => {
     }
 });
 
-// Actions
 app.post('/api/candidates/:id/verify', async (req, res) => {
     try {
         const { data, error } = await supabase.from('candidates').update({ 
@@ -292,5 +289,5 @@ app.get('/api/districts', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT} with All Columns in Sample!`);
+    console.log(`Server running on port ${PORT} with Auto-ID Bulk Upload!`);
 });
