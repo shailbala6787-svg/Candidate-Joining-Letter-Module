@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | UP Police Joining & Allotment</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
@@ -17,40 +19,47 @@
             margin: 0;
             font-family: 'Outfit', sans-serif;
         }
+
         .login-card {
             background: rgba(255, 255, 255, 0.95);
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 400px;
             text-align: center;
             backdrop-filter: blur(10px);
         }
+
         .login-logo img {
             width: 100px;
             margin-bottom: 20px;
         }
+
         .login-card h2 {
             color: #002147;
             margin-bottom: 5px;
             font-weight: 700;
         }
+
         .login-card p {
             color: #666;
             margin-bottom: 30px;
             font-size: 0.9rem;
         }
+
         .form-group {
             text-align: left;
             margin-bottom: 20px;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
             color: #333;
         }
+
         .form-group input {
             width: 100%;
             padding: 12px 15px;
@@ -59,9 +68,11 @@
             outline: none;
             transition: border-color 0.3s;
         }
+
         .form-group input:focus {
             border-color: #002147;
         }
+
         .login-btn {
             width: 100%;
             padding: 14px;
@@ -74,10 +85,12 @@
             cursor: pointer;
             transition: background 0.3s, transform 0.2s;
         }
+
         .login-btn:hover {
             background: #003366;
             transform: translateY(-2px);
         }
+
         .error-msg {
             color: #ff4d4d;
             font-size: 0.85rem;
@@ -86,6 +99,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="login-card">
         <div class="login-logo">
@@ -93,7 +107,7 @@
         </div>
         <h2>UP Police</h2>
         <p>Joining & Allotment System</p>
-        
+
         <form id="loginForm">
             <div class="form-group">
                 <label>Username</label>
@@ -109,13 +123,13 @@
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
             const errorMsg = document.getElementById('errorMsg');
 
-            if (user === 'admin' && pass === '123') {
+            if (user === 'Admin' && pass === '123') {
                 localStorage.setItem('isLoggedIn', 'true');
                 window.location.href = 'dashboard.html';
             } else {
@@ -127,4 +141,5 @@
         });
     </script>
 </body>
+
 </html>

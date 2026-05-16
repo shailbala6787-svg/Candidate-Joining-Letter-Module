@@ -1,4 +1,3 @@
-// const API_URL = 'http://localhost:5000/api';
 const API_URL = 'https://candidate-joining-letter-module.onrender.com/api';
 // Authentication Check
 if (!window.location.pathname.includes('login.html')) {
@@ -107,10 +106,22 @@ async function fetchData() {
 
 function getStatusClass(status) {
     if (!status) return 'status-pending';
-    if (status === 'Verified') return 'status-verified';
-    if (status.includes('Offline Verified')) return 'status-offline';
-    if (status === 'Pending') return 'status-pending';
-    if (status === 'N/A') return 'status-verified'; // N/A is considered "OK"
+    const s = status.toString().trim().toLowerCase();
+    
+    // Anything that is "Verified", "Offline Verified", or "N/A" should be green
+    if (s === 'verified' || s === 'offline verified' || s === 'n/a') {
+        return 'status-verified';
+    }
+    
+    // If it contains "Verified" but isn't one of the above (e.g., "Partially Verified"?), still make it green
+    if (s.includes('verified') && !s.includes('need to')) {
+        return 'status-verified';
+    }
+    
+    if (s.includes('need to') || s === 'pending') {
+        return 'status-pending';
+    }
+    
     return 'status-pending';
 }
 
@@ -255,6 +266,7 @@ async function initRegistrationForm() {
     if (select) {
         select.innerHTML = districts.map(d => `<option value="${d}">${d}</option>`).join('');
     }
+    
     hideLoader();
 }
 
