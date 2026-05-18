@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Joining Letter Issue | UP Police</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    <div class="loader-wrapper" id="loader"><div class="loader"></div></div>
+    <div class="loader-wrapper" id="loader">
+        <div class="loader"></div>
+    </div>
 
     <aside class="sidebar">
         <div class="sidebar-header">
@@ -20,18 +25,25 @@
         </div>
         <ul class="menu">
             <li><a href="dashboard.html"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a></li>
-            <li><a href="candidate-entry.html"><i class="fa-solid fa-user-plus"></i><span>Candidate Entry</span></a></li>
+            <li><a href="candidate-entry.html"><i class="fa-solid fa-user-plus"></i><span>Candidate Entry</span></a>
+            </li>
             <li><a href="candidate-edit.html"><i class="fa-solid fa-user-pen"></i><span>Candidate Edit</span></a></li>
-            <li><a href="certificate-details.html"><i class="fa-solid fa-certificate"></i><span>Certificate Details</span></a></li>
-            <li class="active"><a href="joining-letter.html"><i class="fa-solid fa-file-signature"></i><span>Joining Letter Issue</span></a></li>
-            <li><a href="posting-allotment.html"><i class="fa-solid fa-map-location-dot"></i><span>Posting Allotment</span></a></li>
-            <li class="logout-btn"><a href="login.html"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a></li>
+            <li><a href="certificate-details.html"><i class="fa-solid fa-certificate"></i><span>Certificate
+                        Details</span></a></li>
+            <li class="active"><a href="joining-letter.html"><i class="fa-solid fa-file-signature"></i><span>Joining
+                        Letter Issue</span></a></li>
+            <li><a href="posting-allotment.html"><i class="fa-solid fa-map-location-dot"></i><span>Posting
+                        Allotment</span></a></li>
+            <li class="logout-btn"><a href="login.html"><i
+                        class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a></li>
         </ul>
     </aside>
 
     <main class="main-content">
         <header class="top-navbar">
-            <div class="nav-left"><h3>Joining Letter Issue Module</h3></div>
+            <div class="nav-left">
+                <h3>Joining Letter Issue Module</h3>
+            </div>
             <div class="nav-right">
                 <div class="user-profile">
                     <img src="https://ui-avatars.com/api/?name=Admin+User&background=002147&color=fff" alt="Admin">
@@ -45,10 +57,12 @@
                 <div class="table-header">
                     <h4>Generate Joining Letter</h4>
                 </div>
-                <div class="table-controls-top" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-bottom: 1px solid #eee;">
+                <div class="table-controls-top"
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-bottom: 1px solid #eee;">
                     <div class="page-size">
                         <span>Show</span>
-                        <select id="letterPageSizeSelectTop" onchange="changeLetterPageSize(this.value)" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd;">
+                        <select id="letterPageSizeSelectTop" onchange="changeLetterPageSize(this.value)"
+                            style="padding: 5px; border-radius: 4px; border: 1px solid #ddd;">
                             <option value="10">10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
@@ -73,10 +87,12 @@
                     </thead>
                     <tbody id="joining-tbody"></tbody>
                 </table>
-                <div class="table-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f9f9f9; border-top: 1px solid #eee;">
+                <div class="table-footer"
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f9f9f9; border-top: 1px solid #eee;">
                     <div class="page-size">
                         <span>Show</span>
-                        <select id="letterPageSizeSelect" onchange="changeLetterPageSize(this.value)" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd;">
+                        <select id="letterPageSizeSelect" onchange="changeLetterPageSize(this.value)"
+                            style="padding: 5px; border-radius: 4px; border: 1px solid #ddd;">
                             <option value="10">10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
@@ -93,51 +109,81 @@
         <!-- Joining Letter Modal for Printing -->
         <div id="letter-modal" class="modal-wrapper" style="display:none; background: rgba(0,0,0,0.8); z-index: 2001;">
             <div class="modal-content" style="max-width: 800px; padding: 0; background: #fff; overflow: hidden;">
-                <div class="modal-header" style="background: var(--primary-color); color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center;">
+                <div class="modal-header"
+                    style="background: var(--primary-color); color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center;">
                     <h3>Joining Letter Preview</h3>
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-secondary btn-sm" onclick="printLetterContent()"><i class="fa-solid fa-print"></i> Print Letter</button>
-                        <button class="btn btn-red btn-sm" onclick="closeLetterModal()"><i class="fa-solid fa-xmark"></i> Close</button>
+                        <button class="btn btn-secondary btn-sm" onclick="printLetterContent()"><i
+                                class="fa-solid fa-print"></i> Print Letter</button>
+                        <button class="btn btn-red btn-sm" onclick="closeLetterModal()"><i
+                                class="fa-solid fa-xmark"></i> Close</button>
                     </div>
                 </div>
-                <div id="printable-letter" style="padding: 50px 60px; color: #000; font-family: 'Inter', sans-serif; line-height: 1.6; max-height: 80vh; overflow-y: auto;">
+                <div id="printable-letter"
+                    style="padding: 50px 60px; color: #000; font-family: 'Inter', sans-serif; line-height: 1.6; max-height: 80vh; overflow-y: auto;">
                     <div style="text-align: center; margin-bottom: 30px;">
-                        <img src="assets/images/logo.png" alt="UP Police Logo" style="width: 100px; margin-bottom: 15px;">
+                        <img src="assets/images/logo.png" alt="UP Police Logo"
+                            style="width: 100px; margin-bottom: 15px;">
                         <h2 style="margin: 0; font-size: 1.5rem;">पुलिस तकनीकी सेवायें मुख्यालय, उत्तर प्रदेश</h2>
-                        <p style="margin: 5px 0;">8वॉ तल, टावर-4, पुलिस मुख्यालय, अमर शहीद पथ, गोमतीनगर विस्तार, लखनऊ – 226002</p>
+                        <p style="margin: 5px 0;">8वॉ तल, टावर-4, पुलिस मुख्यालय, अमर शहीद पथ, गोमतीनगर विस्तार, लखनऊ –
+                            226002</p>
                         <p style="margin: 5px 0;">e-mail: tshq@up.nic.in</p>
                         <h3 style="margin: 20px 0; text-decoration: underline;">नियुक्ति आदेश</h3>
                     </div>
-                    
+
                     <p><strong>अनुक्रमांक:</strong> <b id="l-roll"></b></p>
                     <p><strong>श्री/कु0/श्रीमती:</strong> <b id="l-name"></b></p>
                     <p><strong>पुत्र/पुत्री/पत्नी:</strong> <b id="l-father"></b></p>
                     <p><strong>पता:</strong> <b id="l-address"></b></p>
-                    
+
                     <p style="text-indent: 50px; margin-top: 20px; text-align: justify;">
-                        आपको पुलिस अधिनियम 1861 (अधिनियम संख्या 5, 1861) की धारा 2 एवं उत्तर प्रदेश पुलिस कम्प्यूटर कर्मचारी वर्ग सेवा नियमावली (अराजपत्रित) 2011 के अन्तर्गत उत्तर प्रदेश पुलिस कम्प्यूटर केन्द्र, लखनऊ में सीधी भर्ती (विशेष चयन)-2026 के रिक्त कम्प्यूटर आपरेटर ग्रेड-ए के पदों को भरे जाने के सम्बन्ध में उत्तर प्रदेश पुलिस भर्ती एवं प्रोन्नति बोर्ड लखनऊ द्वारा सम्पादित की गयी लिखित परीक्षा एवं कम्प्यूटर टंकण परीक्षा में अन्तिम रूप से चयनित होने पर कम्प्यूटर आपरेटर ग्रेड-ए के पद पर वेतनमान 5200-20200, (ग्रेड पे रू0 2400) वेतन मैट्रिक्स लेवल-4 पर अस्थाई रूप से नियुक्त किया जाता है। कार्यभार ग्रहण करने की तिथि से दो वर्ष तक आप परिवीक्षाधीन रहेंगे। आपकी नियुक्ति प्रथमतः उ0प्र0 पुलिस तकनीकी सेवायें मुख्यालय, लखनऊ में की जाती है।
+                        आपको पुलिस अधिनियम 1861 की धारा 2 के अन्तर्गत उत्तर प्रदेश पुलिस कम्प्यूटर केन्द्र, लखनऊ में
+                        सीधी भर्ती (विशेष चयन)-2026 के रिक्त कम्प्यूटर आपरेटर ग्रेड-ए के पदों को भरे जाने के सम्बन्ध में
+                        उत्तर प्रदेश पुलिस भर्ती एवं प्रोन्नति बोर्ड लखनऊ द्वारा सम्पादित की गयी लिखित परीक्षा एवं
+                        कम्प्यूटर टंकण परीक्षा में अन्तिम रूप से चयनित होने पर कम्प्यूटर आपरेटर ग्रेड-ए के पद पर वेतनमान
+                        5200-20200, (ग्रेड पे रू0 2400) वेतन मैट्रिक्स लेवल-4 पर अस्थाई रूप से नियुक्त किया जाता है।
+                        कार्यभार ग्रहण करने की तिथि से दो वर्ष तक आप परिवीक्षाधीन रहेंगे। आपकी नियुक्ति प्रथमतः उ0प्र0
+                        पुलिस तकनीकी सेवायें मुख्यालय, लखनऊ में की जाती है।
                     </p>
-                    
-                    <p>2- नियुक्ति स्थान पर कार्यभार ग्रहण करने हेतु किसी प्रकार का यात्रा भत्ता देय नहीं होगा और न ही कार्यभार ग्रहण काल मिलेगा।</p>
+
+                    <p>2- नियुक्ति स्थान पर कार्यभार ग्रहण करने हेतु किसी प्रकार का यात्रा भत्ता देय नहीं होगा और न ही
+                        कार्यभार ग्रहण काल मिलेगा।</p>
                     <p>3- यह नियुक्ति पूर्ण रूपेण अस्थाई है।</p>
-                    <p>4- यदि शैक्षिक प्रमाण-पत्रों एवं पूर्ववृत्त सत्यापन में कोई विपरीत तथ्य प्रकाश में आते हैं, तो यह नियुक्ति निरस्त करते हुए नियमानुसार वैधानिक कार्यवाही की जा सकती है। ऐसी दशा में आप किसी क्षतिपूर्ति आदि के लिए दावेदार नहीं होंगे।</p>
-                    <p>5- यदि आप किसी अन्य विभाग में कार्यरत है और वहॉ से नियमानुसार कार्यमुक्त/पूर्ववर्ती विभाग की सेवायें छोड़कर पुलिस विभाग में योगदान देते हैं, तो आपको अपने पूर्व विभाग से अदेयता/अनापत्ति प्रमाण-पत्र को कार्यभार ग्रहण करने से पूर्व प्रस्तुत करना होगा।</p>
-                    <p>6- चयनित अभ्यर्थी की ज्येष्ठता उत्तर प्रदेश पुलिस भर्ती एवं प्रोन्नति बोर्ड लखनऊ द्वारा घोषित परीक्षा परिणाम के आधार पर जारी अन्तिम वरिष्ठता सूची के अनुसार होगी।</p>
-                    <p>7- आप दिनाँक- <b id="l-date"></b> को उ0प्र0 पुलिस तकनीकी सेवायें मुख्यालय, पुलिस मुख्यालय (सिग्नेचर बिल्डिंग) लखनऊ में कार्यभार ग्रहण करने हेतु उपस्थित हों। यदि आप नियत समय के अन्दर अपनी नियुक्ति हेतु बिना किसी औचित्य के उपस्थित नहीं होते हैं तो यह समझा जायेगा कि आप उपरोक्त सेवा हेतु इच्छुक नहीं हैं, और आपका चयन स्वतः निरस्त मानते हुए अनुमोदन सूची में से नाम काट दिया जायेगा, जिसके लिए आप स्वयं उत्तरदायी होंगे।</p>
-                    
+                    <p>4- यदि शैक्षिक प्रमाण-पत्रों एवं पूर्ववृत्त सत्यापन में कोई विपरीत तथ्य प्रकाश में आते हैं, तो यह
+                        नियुक्ति निरस्त करते हुए नियमानुसार वैधानिक कार्यवाही की जा सकती है। ऐसी दशा में आप किसी
+                        क्षतिपूर्ति आदि के लिए दावेदार नहीं होंगे।</p>
+                    <p>5- यदि आप किसी अन्य विभाग में कार्यरत है और वहॉ से नियमानुसार कार्यमुक्त/पूर्ववर्ती विभाग की
+                        सेवायें छोड़कर पुलिस विभाग में योगदान देते हैं, तो आपको अपने पूर्व विभाग से अदेयता/अनापत्ति
+                        प्रमाण-पत्र को कार्यभार ग्रहण करने से पूर्व प्रस्तुत करना होगा।</p>
+                    <p>6- चयनित अभ्यर्थी की ज्येष्ठता उत्तर प्रदेश पुलिस भर्ती एवं प्रोन्नति बोर्ड लखनऊ द्वारा घोषित
+                        परीक्षा परिणाम के आधार पर जारी अन्तिम वरिष्ठता सूची के अनुसार होगी।</p>
+                    <p>7- आप दिनाँक- <b id="l-date"></b> को उ0प्र0 पुलिस तकनीकी सेवायें मुख्यालय, पुलिस मुख्यालय
+                        (सिग्नेचर बिल्डिंग) लखनऊ में कार्यभार ग्रहण करने हेतु उपस्थित हों। यदि आप नियत समय के अन्दर अपनी
+                        नियुक्ति हेतु बिना किसी औचित्य के उपस्थित नहीं होते हैं तो यह समझा जायेगा कि आप उपरोक्त सेवा
+                        हेतु इच्छुक नहीं हैं, और आपका चयन स्वतः निरस्त मानते हुए अनुमोदन सूची में से नाम काट दिया
+                        जायेगा, जिसके लिए आप स्वयं उत्तरदायी होंगे।</p>
+
                     <div style="margin-top: 40px; text-align: right;">
                         <p>( XYZ )</p>
                         <p>उ0प्र0 पुलिस कम्प्यूटर केन्द्र, लखनऊ।</p>
                     </div>
-                    
-                    <div style="page-break-before: always; margin-top: 50px; border-top: 1px dashed #ccc; padding-top: 20px;">
+
+                    <div
+                        style="page-break-before: always; margin-top: 50px; border-top: 1px dashed #ccc; padding-top: 20px;">
                         <p style="text-align: center;">-2-</p>
                         <p><strong>प्रतिलिपिः</strong></p>
                         <p>1. अपर पुलिस महानिदेशक, तकनीकी सेवायें, उ0प्र0, लखनऊ को सादर सूचनार्थ प्रेषित।</p>
-                        <p>2. अपर सचिव, भर्ती, उत्तर प्रदेश पुलिस भर्ती एवं प्रोन्नति बोर्ड लखनऊ को सूचनार्थ प्रेषित।</p>
+                        <p>2. अपर सचिव, भर्ती, उत्तर प्रदेश पुलिस भर्ती एवं प्रोन्नति बोर्ड लखनऊ को सूचनार्थ प्रेषित।
+                        </p>
                         <p><strong>रजिस्टर्ड</strong></p>
-                        <p>3. श्री/कु0/श्रीमती <b id="l-name2"></b> पुत्र/पुत्री/पत्नी <b id="l-father2"></b> अनुक्रमांक <b id="l-roll2"></b> पता <b id="l-address2"></b> को इस निर्देश के साथ कि पत्र प्राप्ति के उपरान्त दिनाँक- <b id="l-date2"></b> को उ0प्र0 पुलिस तकनीकी सेवायें मुख्यालय, लखनऊ में कार्यभार ग्रहण करने हेतु उपस्थित हों।</p>
-                        <p>4. वरिष्ठ पुलिस अधीक्षक/पुलिस अधीक्षक जनपद <b id="l-district"></b> को आदेश दो प्रतियों में इस अनुरोध के साथ प्रेषित है कि श्री/कु0/श्रीमती <b id="l-name3"></b> को एक प्रति उसके घर के पते पर प्राप्त करवाकर दूसरी प्रति पर उसके प्राप्ति के हस्ताक्षर मय दिनांक के लेकर इस कार्यालय को अभिलेखार्थ वापस करने का कष्ट करें।</p>
+                        <p>3. श्री/कु0/श्रीमती <b id="l-name2"></b> पुत्र/पुत्री/पत्नी <b id="l-father2"></b> अनुक्रमांक
+                            <b id="l-roll2"></b> पता <b id="l-address2"></b> को इस निर्देश के साथ कि पत्र प्राप्ति के
+                            उपरान्त दिनाँक- <b id="l-date2"></b> को उ0प्र0 पुलिस तकनीकी सेवायें मुख्यालय, लखनऊ में
+                            कार्यभार ग्रहण करने हेतु उपस्थित हों।</p>
+                        <p>4. वरिष्ठ पुलिस अधीक्षक/पुलिस अधीक्षक जनपद <b id="l-district"></b> को आदेश दो प्रतियों में इस
+                            अनुरोध के साथ प्रेषित है कि श्री/कु0/श्रीमती <b id="l-name3"></b> को एक प्रति उसके घर के पते
+                            पर प्राप्त करवाकर दूसरी प्रति पर उसके प्राप्ति के हस्ताक्षर मय दिनांक के लेकर इस कार्यालय को
+                            अभिलेखार्थ वापस करने का कष्ट करें।</p>
                     </div>
                 </div>
             </div>
@@ -151,4 +197,5 @@
         });
     </script>
 </body>
+
 </html>

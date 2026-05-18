@@ -184,11 +184,19 @@
                             </div>
                             <div class="form-group">
                                 <label>Father Name</label>
-                                <input type="text" name="fatherName" id="edit-father" required>
+                                <input type="text" name="fatherName" id="edit-father">
                             </div>
                             <div class="form-group">
                                 <label>Mobile</label>
-                                <input type="text" name="mobile" id="edit-mobile" required>
+                                <input type="text" name="mobile" id="edit-mobile">
+                            </div>
+                            <div class="form-group">
+                                <label>Email ID</label>
+                                <input type="email" name="email" id="edit-email">
+                            </div>
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label>Permanent Address</label>
+                                <textarea name="address" id="edit-address" rows="3"></textarea>
                             </div>
                         </div>
                         <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: flex-end;">
@@ -201,7 +209,7 @@
         </div>
     </main>
 
-    <script src="js/script.js"></script>
+    <script src="js/script.js?v=2.0"></script>
     <script>
         window.addEventListener('DOMContentLoaded', () => {
             initEditPage();

@@ -44,7 +44,7 @@
                 <div class="table-header">
                     <h4>Verification Status</h4>
                 </div>
-                <div class="table-controls-top" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-bottom: 1px solid #eee;">
+                <div class="table-controls-top" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-bottom: 1px solid #eee; flex-wrap: wrap; gap: 10px;">
                     <div class="page-size">
                         <span>Show</span>
                         <select id="verifyPageSizeSelectTop" onchange="changeVerifyPageSize(this.value)" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd;">
@@ -56,24 +56,32 @@
                         </select>
                         <span>entries</span>
                     </div>
+                    <div class="search-box">
+                        <input type="text" id="searchID" placeholder="Search by ID, Name or Roll No..." oninput="filterVerificationTable(this.value)" style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; width: 250px;">
+                    </div>
                     <div class="pagination" id="verify-table-pagination-top" style="display: flex; gap: 5px;"></div>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Sr. No.</th>
-                            <th>ID</th>
-                            <th>Roll No.</th>
-                            <th>Candidate Name</th>
-                            <th>10th Status</th>
-                            <th>12th Status</th>
-                            <th>Tech Status</th>
-                            <th>Verification Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="verification-tbody"></tbody>
-                </table>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sr. No.</th>
+                                <th>ID</th>
+                                <th>Roll No.</th>
+                                <th>Candidate Name</th>
+                                <th>10th Status</th>
+                                <th>12th Status</th>
+                                <th>Tech Status</th>
+                                <th>Domicile</th>
+                                <th>Caste</th>
+                                <th>EWS</th>
+                                <th>Verif. Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="verification-tbody"></tbody>
+                    </table>
+                </div>
                 <div class="table-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f9f9f9; border-top: 1px solid #eee;">
                     <div class="page-size">
                         <span>Show</span>

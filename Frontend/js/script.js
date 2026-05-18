@@ -79,9 +79,47 @@ async function fetchData() {
         }
 
         const results = await Promise.all(fetchTasks);
-        candidates = results[0];
+        let apiCandidates = results[0];
+        
+        // Apply local deletions
+        if (localStorage.getItem('deleted_candidates')) {
+            const deletedIds = JSON.parse(localStorage.getItem('deleted_candidates'));
+            apiCandidates = apiCandidates.filter(c => !deletedIds.includes(c.id));
+        }
+
         stats = results[1];
         if (results[2]) districts = results[2];
+
+        // Merge locally saved mock candidates with API data
+        let localCandidates = [];
+        if (localStorage.getItem('mock_candidates')) {
+            localCandidates = JSON.parse(localStorage.getItem('mock_candidates'));
+        }
+        
+        // Merge local changes into API candidates
+        localCandidates.forEach(localCand => {
+            const exists = apiCandidates.find(c => c.id === localCand.id);
+            if (!exists) {
+                apiCandidates.push(localCand);
+            } else {
+                Object.assign(exists, localCand);
+            }
+        });
+        candidates = apiCandidates;
+        
+        // Recalculate stats with the merged candidates
+        const verified10th = candidates.filter(c => c.verifyStatus10 === 'Verified').length;
+        const verified12th = candidates.filter(c => c.verifyStatus12 === 'Verified').length;
+        const verifiedTech = candidates.filter(c => c.verifyStatusTech === 'Verified').length;
+        const verifiedDomicile = candidates.filter(c => c.verifyStatusDomicile === 'Verified').length;
+        const verifiedCaste = candidates.filter(c => c.verifyStatusCaste === 'Verified').length;
+        const verifiedEWS = candidates.filter(c => c.verifyStatusEWS === 'Verified').length;
+        const totalVerified = candidates.filter(c => c.status === 'Verified' || c.status === 'Offline Verified').length;
+        const pendingVerification = candidates.filter(c => c.status === 'Pending').length;
+        const totalIssuedLetters = candidates.filter(c => c.issuedLetter === true || c.issuedLetter === 'true').length;
+        const postingAssigned = candidates.filter(c => c.postingDistrict && c.postingDistrict !== 'Unassigned' && c.postingDistrict !== 'Not Allotted' && c.postingDistrict !== '').length;
+
+        stats = { totalCandidates: candidates.length, verified10th, verified12th, verifiedTech, verifiedDomicile, verifiedCaste, verifiedEWS, totalVerified, pendingVerification, totalIssuedLetters, postingAssigned };
 
     } catch (err) {
         console.error('Error fetching data:', err);
@@ -96,11 +134,33 @@ async function fetchData() {
             "Pilibhit", "Pratapgarh", "Prayagraj", "Rae Bareli", "Rampur", "Saharanpur", "Sambhal", "Sant Kabir Nagar",
             "Shahjahanpur", "Shamli", "Shravasti", "Siddharthnagar", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao", "Varanasi", "Other"
         ];
-        candidates = [
-            { id: 'UPP-1001', name: 'Amit Sharma', fatherName: 'Rajesh Sharma', mobile: '9876543210', district: 'Lucknow', status: 'Verified', category: 'General', cert10: '12345', cert12: '67890', certTech: 'TECH-11', postingDistrict: 'Lucknow', joiningDate: '2026-06-01', issuedLetter: true },
-            { id: 'UPP-1002', name: 'Priya Singh', fatherName: 'Vikram Singh', mobile: '9988776655', district: 'Kanpur', status: 'Pending', category: 'OBC', cert10: '22334', cert12: '44556', certTech: 'TECH-22', postingDistrict: '', joiningDate: '', issuedLetter: false }
-        ];
-        stats = { totalCandidates: 1250, verified10th: 1100, verified12th: 1050, verifiedTech: 950, totalVerified: 1100, pendingVerification: 150, totalIssuedLetters: 800, postingAssigned: 750 };
+        if (localStorage.getItem('mock_candidates')) {
+            candidates = JSON.parse(localStorage.getItem('mock_candidates'));
+        } else {
+            candidates = [
+                { id: 'UPP-1001', name: 'Amit Sharma', fatherName: 'Rajesh Sharma', mobile: '9876543210', district: 'Lucknow', status: 'Verified', category: 'General', cert10: '12345', cert12: '67890', certTech: 'TECH-11', postingDistrict: 'Lucknow', joiningDate: '2026-06-01', issuedLetter: true, meritNo: '1001', rollNo: '123456', regNo: '987654', verifyStatus10: 'Verified', verifyStatus12: 'Verified', verifyStatusTech: 'Verified' },
+                { id: 'UPP-1002', name: 'Priya Singh', fatherName: 'Vikram Singh', mobile: '9988776655', district: 'Kanpur', status: 'Pending', category: 'OBC', cert10: '22334', cert12: '44556', certTech: 'TECH-22', postingDistrict: '', joiningDate: '', issuedLetter: false, meritNo: '1002', rollNo: '654321', regNo: '456789', verifyStatus10: 'Pending', verifyStatus12: 'Pending', verifyStatusTech: 'Pending' }
+            ];
+            localStorage.setItem('mock_candidates', JSON.stringify(candidates));
+        }
+        
+        if (localStorage.getItem('deleted_candidates')) {
+            const deletedIds = JSON.parse(localStorage.getItem('deleted_candidates'));
+            candidates = candidates.filter(c => !deletedIds.includes(c.id));
+        }
+
+        const verified10th = candidates.filter(c => c.verifyStatus10 === 'Verified').length;
+        const verified12th = candidates.filter(c => c.verifyStatus12 === 'Verified').length;
+        const verifiedTech = candidates.filter(c => c.verifyStatusTech === 'Verified').length;
+        const verifiedDomicile = candidates.filter(c => c.verifyStatusDomicile === 'Verified').length;
+        const verifiedCaste = candidates.filter(c => c.verifyStatusCaste === 'Verified').length;
+        const verifiedEWS = candidates.filter(c => c.verifyStatusEWS === 'Verified').length;
+        const totalVerified = candidates.filter(c => c.status === 'Verified' || c.status === 'Offline Verified').length;
+        const pendingVerification = candidates.filter(c => c.status === 'Pending').length;
+        const totalIssuedLetters = candidates.filter(c => c.issuedLetter === true || c.issuedLetter === 'true').length;
+        const postingAssigned = candidates.filter(c => c.postingDistrict && c.postingDistrict !== 'Unassigned' && c.postingDistrict !== 'Not Allotted' && c.postingDistrict !== '').length;
+
+        stats = { totalCandidates: candidates.length, verified10th, verified12th, verifiedTech, verifiedDomicile, verifiedCaste, verifiedEWS, totalVerified, pendingVerification, totalIssuedLetters, postingAssigned };
     }
 }
 
@@ -159,19 +219,20 @@ function renderRecentCandidates() {
     const tbody = document.getElementById('recent-candidates-tbody');
     if (!tbody) return;
 
+    const sortedCandidates = [...candidates].reverse();
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
-    const paginatedItems = candidates.slice(start, end);
+    const paginatedItems = sortedCandidates.slice(start, end);
 
     tbody.innerHTML = paginatedItems.map((c, index) => {
         const isAssigned = c.postingDistrict && c.postingDistrict !== 'Unassigned' && c.postingDistrict !== 'Not Allotted' && c.postingDistrict !== '';
         return `
             <tr>
-                <td>${start + index + 1}</td>
+                <td>${candidates.length - (start + index)}</td>
                 <td>${c.id}</td>
                 <td>${c.name}</td>
                 <td>${c.district}</td>
-                <td><span class="status-badge ${getStatusClass(c.status)}">${c.status}</span></td>
+                <td><span class="status-badge ${getStatusClass(c.status)}">${c.status || 'Pending'}</span></td>
                 <td>${isAssigned ? c.postingDistrict : 'Unassigned'}</td>
             </tr>
         `;
@@ -214,7 +275,7 @@ function renderStatCard(label, value, icon, iconClass) {
 function initCharts() {
     // Dynamic data for charts
     const verificationData = {
-        verified: candidates.filter(c => c.status === 'Verified').length,
+        verified: candidates.filter(c => c.status === 'Verified' || c.status === 'Offline Verified').length,
         pending: candidates.filter(c => c.status === 'Pending').length
     };
 
@@ -264,29 +325,75 @@ async function initRegistrationForm() {
     await fetchData();
     const select = document.getElementById('district-select');
     if (select) {
-        select.innerHTML = districts.map(d => `<option value="${d}">${d}</option>`).join('');
+        select.innerHTML = `<option value="">Select Home District</option>` + districts.map(d => `<option value="${d}">${d}</option>`).join('');
+    }
+    
+    // Auto-generate Candidate ID
+    const candIdInput = document.getElementById('candidateId');
+    if (candIdInput) {
+        candIdInput.value = `UPP-${Math.floor(Math.random() * 90000) + 10000}`;
     }
     
     hideLoader();
 }
 
+function validateMeritNo(value) {
+    const errorElem = document.getElementById('meritError');
+    const submitBtn = document.querySelector('#regForm button[type="submit"]');
+    if (!value || !errorElem || !submitBtn) return;
+    
+    // Check if merit number exists in our candidates list
+    const exists = candidates.some(c => c.meritNo === value);
+    if (exists) {
+        errorElem.style.display = 'block';
+        submitBtn.disabled = true;
+    } else {
+        errorElem.style.display = 'none';
+        submitBtn.disabled = false;
+    }
+}
+
 async function handleRegistration(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
+    const formMessage = document.getElementById('formMessage');
     showLoader();
     try {
         const res = await fetch(`${API_URL}/candidates`, { method: 'POST', body: formData });
         if (res.ok) {
-            alert('Candidate Registered Successfully!');
-            window.location.href = 'candidate-edit.html';
+            if (formMessage) {
+                formMessage.textContent = 'Candidate Registered Successfully!';
+                formMessage.style.backgroundColor = '#d4edda';
+                formMessage.style.color = '#155724';
+                formMessage.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
+            } else {
+                alert('Candidate Registered Successfully!');
+                window.location.href = 'dashboard.html';
+            }
+        } else {
+            throw new Error(`Server returned ${res.status}`);
         }
     } catch (err) {
-        alert('API Error. Candidate added to local list for demo.');
+        if (formMessage) {
+            formMessage.textContent = 'Candidate Registered (Added to local storage).';
+            formMessage.style.backgroundColor = '#d4edda';
+            formMessage.style.color = '#155724';
+            formMessage.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            alert('API Error. Candidate added to local list for demo.');
+        }
         const newCand = Object.fromEntries(formData);
-        newCand.id = `UPP-${Math.floor(Math.random() * 9000)}`;
+        if (!newCand.id) {
+            newCand.id = document.getElementById('candidateId') ? document.getElementById('candidateId').value : `UPP-${Math.floor(Math.random() * 90000) + 10000}`;
+        }
         newCand.status = 'Pending';
         candidates.push(newCand);
-        window.location.href = 'candidate-edit.html';
+        localStorage.setItem('mock_candidates', JSON.stringify(candidates));
+        alert('Candidate Registered Successfully! (Saved Locally)');
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
     }
     hideLoader();
 }
@@ -295,27 +402,75 @@ async function handleBulkUpload(input) {
     if (!input.files || !input.files[0]) return;
 
     const file = input.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-
     showLoader();
+
     try {
-        const res = await fetch(`${API_URL}/candidates/bulk-upload`, {
-            method: 'POST',
-            body: formData
-        });
-        const result = await res.json();
-        if (res.ok) {
-            alert(result.message);
-            window.location.href = 'candidate-edit.html';
-        } else {
-            alert('Upload failed: ' + (result.message || 'Error'));
-        }
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                // Parse Excel file
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheet];
+                const json = XLSX.utils.sheet_to_json(worksheet);
+                
+                if (json.length === 0) {
+                    alert('Excel file is empty!');
+                    hideLoader();
+                    return;
+                }
+
+                // Map Excel rows to candidate objects
+                const newCandidates = json.map(row => ({
+                    id: `UPP-${Math.floor(Math.random() * 90000) + 10000}`,
+                    name: row['Name'] || row['Candidate Name'] || row['Candidate Full Name'] || 'Unknown',
+                    fatherName: row['Father Name'] || row["Father's Name"] || 'Unknown',
+                    mobile: row['Mobile'] || row['Mobile Number'] || 'N/A',
+                    email: row['Email'] || row['Email ID'] || row['Email Address'] || 'N/A',
+                    address: row['Address'] || row['Permanent Address'] || 'N/A',
+                    district: row['District'] || row['Home District'] || 'Other',
+                    status: 'Pending',
+                    category: row['Category'] || row['Selected As'] || 'General',
+                    cert10: '', cert12: '', certTech: '', postingDistrict: '', joiningDate: '', issuedLetter: false,
+                    meritNo: (row['Merit No'] || row['Merit No.'] || Math.floor(Math.random() * 9000)).toString(),
+                    rollNo: (row['Roll No'] || row['Roll Number'] || row['Roll No.'] || Math.floor(Math.random() * 900000)).toString(),
+                    regNo: (row['Reg No'] || row['Registration No'] || row['Registration Number'] || Math.floor(Math.random() * 900000)).toString(),
+                    verifyStatus10: 'Pending', verifyStatus12: 'Pending', verifyStatusTech: 'Pending', verifyStatusDomicile: 'Pending', verifyStatusCaste: 'Pending', verifyStatusEWS: 'Pending'
+                }));
+
+                // Try backend (optional, won't block local storage)
+                const formData = new FormData();
+                formData.append('file', file);
+                try {
+                    await fetch(`${API_URL}/candidates/bulk-upload`, { method: 'POST', body: formData });
+                } catch(backendErr) {
+                    console.log('Backend sync failed, storing locally only.');
+                }
+                
+                // Save locally so dashboard updates instantly
+                let localData = candidates;
+                if (localStorage.getItem('mock_candidates')) {
+                    localData = JSON.parse(localStorage.getItem('mock_candidates'));
+                }
+                localData.push(...newCandidates);
+                candidates = localData;
+                localStorage.setItem('mock_candidates', JSON.stringify(localData));
+                
+                alert(`Bulk upload successful! ${newCandidates.length} records added.`);
+                window.location.href = 'dashboard.html';
+            } catch(err) {
+                console.error(err);
+                alert('Failed to parse Excel file. Make sure it is a valid .xlsx format.');
+                hideLoader();
+            }
+        };
+        reader.readAsArrayBuffer(file);
     } catch (err) {
         console.error(err);
-        alert('Bulk upload error. Please check backend connection.');
+        alert('An error occurred during upload.');
+        hideLoader();
     }
-    hideLoader();
     input.value = ''; // Reset input
 }
 
@@ -333,13 +488,14 @@ function renderEditTable(data) {
     const tbody = document.getElementById('edit-candidates-tbody');
     if (!tbody) return;
 
+    const sortedData = [...data].reverse();
     const start = (currentEditPage - 1) * editPageSize;
     const end = start + editPageSize;
-    const paginatedItems = data.slice(start, end);
+    const paginatedItems = sortedData.slice(start, end);
 
     tbody.innerHTML = paginatedItems.map((c, index) => `
         <tr>
-            <td>${start + index + 1}</td>
+            <td>${data.length - (start + index)}</td>
             <td>${c.id}</td>
             <td>${c.rollNo || 'N/A'}</td>
             <td>${c.name}</td>
@@ -392,10 +548,12 @@ function openEditModal(id) {
     if (document.getElementById('edit-verifyStatusDomicile')) document.getElementById('edit-verifyStatusDomicile').value = cand.verifyStatusDomicile || 'Verified';
     if (document.getElementById('edit-verifyStatusCaste')) document.getElementById('edit-verifyStatusCaste').value = cand.verifyStatusCaste || 'Verified';
     if (document.getElementById('edit-verifyStatusEWS')) document.getElementById('edit-verifyStatusEWS').value = cand.verifyStatusEWS || 'Verified';
-    document.getElementById('edit-name').value = cand.name;
-    document.getElementById('edit-father').value = cand.fatherName;
-    document.getElementById('edit-mobile').value = cand.mobile;
-    document.getElementById('edit-district').value = cand.district;
+    document.getElementById('edit-name').value = cand.name || cand.candidateName || '';
+    document.getElementById('edit-father').value = cand.fatherName || cand.father_name || '';
+    document.getElementById('edit-mobile').value = cand.mobile || cand.mobileNo || '';
+    if (document.getElementById('edit-email')) document.getElementById('edit-email').value = cand.email || '';
+    if (document.getElementById('edit-address')) document.getElementById('edit-address').value = cand.address || '';
+    document.getElementById('edit-district').value = cand.district || cand.homeDistrict || '';
     document.getElementById('edit-modal').style.display = 'flex';
 }
 
@@ -413,15 +571,38 @@ async function handleUpdate(e) {
             body: JSON.stringify(data)
         });
         if (res.ok) {
+            const resData = await res.json();
+            if (!resData) throw new Error('API returned null/empty data');
+            
+            // Update local storage to keep it in sync on success
+            const index = candidates.findIndex(c => c.id === data.id);
+            if (index !== -1) {
+                candidates[index] = { ...candidates[index], ...data };
+                localStorage.setItem('mock_candidates', JSON.stringify(candidates));
+            }
+            
             alert('Updated Successfully!');
             location.reload();
+        } else {
+            throw new Error('API returned ' + res.status);
         }
-    } catch (err) { alert('Update simulated.'); location.reload(); }
+    } catch (err) { 
+        const index = candidates.findIndex(c => c.id === data.id);
+        if (index !== -1) {
+            candidates[index] = { ...candidates[index], ...data };
+            localStorage.setItem('mock_candidates', JSON.stringify(candidates));
+        }
+        alert('Updated Locally!'); 
+        location.reload(); 
+    }
     hideLoader();
 }
 
 async function handleDelete(id) {
-    const deleteId = id || document.getElementById('edit-id').value;
+    let deleteId = (typeof id === 'string' && id.trim() !== '') ? id : null;
+    if (!deleteId) {
+        deleteId = document.getElementById('edit-id').value;
+    }
     if (!deleteId) {
         alert('No Candidate ID found to delete.');
         return;
@@ -432,15 +613,39 @@ async function handleDelete(id) {
     try {
         const res = await fetch(`${API_URL}/candidates/${deleteId}`, { method: 'DELETE' });
         if (res.ok) {
+            const resData = await res.json();
+            if (!resData) throw new Error('API returned null/empty delete response');
+            
+            // Sync local storage on success
+            candidates = candidates.filter(c => c.id !== deleteId);
+            localStorage.setItem('mock_candidates', JSON.stringify(candidates));
+            
+            let deletedIds = [];
+            if (localStorage.getItem('deleted_candidates')) {
+                deletedIds = JSON.parse(localStorage.getItem('deleted_candidates'));
+            }
+            if (!deletedIds.includes(deleteId)) deletedIds.push(deleteId);
+            localStorage.setItem('deleted_candidates', JSON.stringify(deletedIds));
+
             alert('Record Deleted Successfully!');
             location.reload();
         } else {
-            const error = await res.json();
-            alert('Delete failed: ' + error.error);
+            throw new Error('API returned ' + res.status);
         }
     } catch (err) {
-        console.error('Delete error:', err);
-        alert('Could not delete record. Check console for details.');
+        console.error('Delete simulated locally:', err);
+        candidates = candidates.filter(c => c.id !== deleteId);
+        localStorage.setItem('mock_candidates', JSON.stringify(candidates));
+        
+        let deletedIds = [];
+        if (localStorage.getItem('deleted_candidates')) {
+            deletedIds = JSON.parse(localStorage.getItem('deleted_candidates'));
+        }
+        if (!deletedIds.includes(deleteId)) deletedIds.push(deleteId);
+        localStorage.setItem('deleted_candidates', JSON.stringify(deletedIds));
+
+        alert('Record Deleted Locally!');
+        location.reload();
     }
     hideLoader();
 }
@@ -459,23 +664,29 @@ async function initVerificationPage() {
     hideLoader();
 }
 
-function renderVerificationTable() {
+function renderVerificationTable(data = null) {
     const tbody = document.getElementById('verification-tbody');
     if (!tbody) return;
 
+    const displayData = data || candidates;
+    const sortedData = [...displayData].reverse();
+
     const start = (currentVerifyPage - 1) * verifyPageSize;
     const end = start + verifyPageSize;
-    const paginatedItems = candidates.slice(start, end);
+    const paginatedItems = sortedData.slice(start, end);
 
     tbody.innerHTML = paginatedItems.map((c, index) => `
         <tr>
-            <td>${start + index + 1}</td>
+            <td>${displayData.length - (start + index)}</td>
             <td>${c.id}</td>
             <td>${c.rollNo || 'N/A'}</td>
             <td>${c.name}</td>
             <td><span class="status-badge ${getStatusClass(c.verifyStatus10)}">${c.verifyStatus10 || 'Pending'}</span></td>
             <td><span class="status-badge ${getStatusClass(c.verifyStatus12)}">${c.verifyStatus12 || 'Pending'}</span></td>
             <td><span class="status-badge ${getStatusClass(c.verifyStatusTech)}">${c.verifyStatusTech || 'Pending'}</span></td>
+            <td><span class="status-badge ${getStatusClass(c.verifyStatusDomicile)}">${c.verifyStatusDomicile || 'Pending'}</span></td>
+            <td><span class="status-badge ${getStatusClass(c.verifyStatusCaste)}">${c.verifyStatusCaste || 'Pending'}</span></td>
+            <td><span class="status-badge ${getStatusClass(c.verifyStatusEWS)}">${c.verifyStatusEWS || 'Pending'}</span></td>
             <td>${c.verificationDate || 'Pending'}</td>
             <td>
                 <button class="btn btn-primary btn-sm" onclick="verifyCandidate('${c.id}')" ${(c.status === 'Verified' || c.status === 'Offline Verified') ? 'disabled' : ''}>
@@ -483,20 +694,31 @@ function renderVerificationTable() {
                 </button>
             </td>
         </tr>
-    `).join('') || '<tr><td colspan="10" style="text-align:center">No candidates for verification</td></tr>';
+    `).join('') || '<tr><td colspan="12" style="text-align:center">No candidates for verification</td></tr>';
 
-    renderVerifyPaginationControls();
+    renderVerifyPaginationControls(displayData.length);
 }
 
-function renderVerifyPaginationControls() {
+function renderVerifyPaginationControls(totalItems) {
     const containers = [document.getElementById('verify-table-pagination'), document.getElementById('verify-table-pagination-top')];
-    const totalPages = Math.ceil(candidates.length / verifyPageSize);
+    const totalPages = Math.ceil(totalItems / verifyPageSize);
     const html = generatePaginationHtml(currentVerifyPage, totalPages, 'changeVerifyPage');
     containers.forEach(c => { if (c) c.innerHTML = html; });
 
     // Sync dropdowns
     const selects = [document.getElementById('verifyPageSizeSelect'), document.getElementById('verifyPageSizeSelectTop')];
     selects.forEach(s => { if (s) s.value = verifyPageSize > 1000 ? 'all' : verifyPageSize; });
+}
+
+function filterVerificationTable(val) {
+    const term = val.toLowerCase();
+    const filtered = candidates.filter(c => 
+        (c.id && c.id.toLowerCase().includes(term)) || 
+        (c.name && c.name.toLowerCase().includes(term)) || 
+        (c.rollNo && c.rollNo.toString().toLowerCase().includes(term))
+    );
+    currentVerifyPage = 1;
+    renderVerificationTable(filtered);
 }
 
 function changeVerifyPage(page) {
@@ -510,15 +732,57 @@ function changeVerifyPageSize(size) {
     renderVerificationTable();
 }
 
+function isEligibleForVerification(c) {
+    const validStatuses = ['verified', 'offline verified', 'n/a', 'na'];
+    const getCleanStatus = (status) => {
+        if (!status) return 'pending';
+        return status.toString().trim().toLowerCase();
+    };
+
+    const s10 = getCleanStatus(c.verifyStatus10);
+    const s12 = getCleanStatus(c.verifyStatus12);
+    const sTech = getCleanStatus(c.verifyStatusTech);
+    const sDom = getCleanStatus(c.verifyStatusDomicile);
+    const sCaste = getCleanStatus(c.verifyStatusCaste);
+    const sEWS = getCleanStatus(c.verifyStatusEWS);
+    
+    return validStatuses.includes(s10) &&
+           validStatuses.includes(s12) &&
+           validStatuses.includes(sTech) &&
+           validStatuses.includes(sDom) &&
+           validStatuses.includes(sCaste) &&
+           validStatuses.includes(sEWS);
+}
+
 async function verifyCandidate(id) {
+    const cand = candidates.find(c => c.id === id);
+    if (!cand) return;
+
+    if (!isEligibleForVerification(cand)) {
+        alert('Verification Failed: All certificate columns (10th, 12th, Tech, Domicile, Caste, EWS) must be "Verified" or "N/A" before final verification.');
+        return;
+    }
+
     showLoader();
     try {
         const res = await fetch(`${API_URL}/candidates/${id}/verify`, { method: 'POST' });
         if (res.ok) {
-            alert('Verified!');
+            cand.status = 'Verified';
+            cand.verificationDate = new Date().toLocaleDateString('en-GB');
+            localStorage.setItem('mock_candidates', JSON.stringify(candidates));
+            alert('Verified successfully!');
             location.reload();
+        } else {
+            throw new Error('API returned ' + res.status);
         }
-    } catch (err) { alert('Verification simulated.'); location.reload(); }
+    } catch (err) { 
+        console.error('Verify simulated locally:', err);
+        cand.status = 'Verified';
+        cand.verificationDate = new Date().toLocaleDateString('en-GB');
+        localStorage.setItem('mock_candidates', JSON.stringify(candidates));
+        alert('Verification simulated and updated locally.'); 
+        location.reload(); 
+    }
     hideLoader();
 }
 
@@ -672,6 +936,17 @@ async function handleAllotmentSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
+    
+    // Find candidate and update locally
+    const cand = candidates.find(c => c.id === data.id);
+    if (cand) {
+        cand.postingDistrict = data.district;
+        cand.joiningDate = data.joiningDate;
+        cand.orderNo = data.orderNo;
+        cand.allotmentDate = new Date().toLocaleDateString('en-GB');
+        localStorage.setItem('mock_candidates', JSON.stringify(candidates));
+    }
+
     showLoader();
     try {
         const res = await fetch(`${API_URL}/candidates/${data.id}/allot`, {
@@ -682,8 +957,14 @@ async function handleAllotmentSubmit(e) {
         if (res.ok) {
             alert('Allotment Saved!');
             location.reload();
+        } else {
+            throw new Error('API returned ' + res.status);
         }
-    } catch (err) { alert('Allotment simulated.'); location.reload(); }
+    } catch (err) { 
+        console.error('Allotment simulated locally:', err);
+        alert('Allotment Saved (Simulated)!'); 
+        location.reload(); 
+    }
     hideLoader();
 }
 
@@ -779,10 +1060,18 @@ async function printLetterContent() {
 
     const printContents = document.getElementById('printable-letter').innerHTML;
 
-    // Mark as issued in DB
+    // Mark as issued in DB and local storage
+    const cand = candidates.find(c => c.id === currentPreviewId);
+    if (cand) {
+        cand.issuedLetter = true;
+        localStorage.setItem('mock_candidates', JSON.stringify(candidates));
+    }
+
     try {
         await fetch(`${API_URL}/candidates/${currentPreviewId}/issue-letter`, { method: 'POST' });
-    } catch (err) { console.error('Error marking as issued:', err); }
+    } catch (err) { 
+        console.error('Error marking as issued:', err); 
+    }
 
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`

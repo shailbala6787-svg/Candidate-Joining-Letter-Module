@@ -207,6 +207,9 @@ app.put('/api/candidates/:id', async (req, res) => {
             .select();
 
         if (error) throw error;
+        if (!data || data.length === 0) {
+            return res.status(404).json({ error: 'Candidate not found' });
+        }
         res.json(mapToFrontend(data[0]));
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -220,8 +223,16 @@ app.delete('/api/candidates/:id', async (req, res) => {
             if (error) throw error;
             return res.json({ message: 'All records deleted successfully' });
         }
-        const { error } = await supabase.from('candidates').delete().eq('id', req.params.id);
+        const { data, error } = await supabase
+            .from('candidates')
+            .delete()
+            .eq('id', req.params.id)
+            .select();
+            
         if (error) throw error;
+        if (!data || data.length === 0) {
+            return res.status(404).json({ error: 'Candidate not found' });
+        }
         res.json({ message: 'Deleted' });
     } catch (err) {
         res.status(500).json({ error: err.message });
