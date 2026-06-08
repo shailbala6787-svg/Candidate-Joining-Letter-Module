@@ -69,8 +69,14 @@ function generatePaginationHtml(currentPage, totalPages, changeFnName) {
 async function fetchData() {
     try {
         const fetchTasks = [
-            fetch(`${API_URL}/candidates`).then(r => r.json()),
-            fetch(`${API_URL}/stats`).then(r => r.json())
+            fetch(`${API_URL}/candidates`).then(r => {
+                if (!r.ok) throw new Error(`Candidates API returned ${r.status}`);
+                return r.json();
+            }),
+            fetch(`${API_URL}/stats`).then(r => {
+                if (!r.ok) throw new Error(`Stats API returned ${r.status}`);
+                return r.json();
+            })
         ];
 
         // Only fetch districts once per session to improve performance
@@ -78,7 +84,10 @@ async function fetchData() {
         if (cachedDistricts) {
             districts = JSON.parse(cachedDistricts);
         } else {
-            fetchTasks.push(fetch(`${API_URL}/districts`).then(r => r.json()).then(data => {
+            fetchTasks.push(fetch(`${API_URL}/districts`).then(r => {
+                if (!r.ok) throw new Error(`Districts API returned ${r.status}`);
+                return r.json();
+            }).then(data => {
                 try {
                     sessionStorage.setItem('cached_districts', JSON.stringify(data));
                 } catch (e) {
