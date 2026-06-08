@@ -467,23 +467,13 @@ async function handleBulkUpload(input) {
                     verifyStatus10: 'Pending', verifyStatus12: 'Pending', verifyStatusTech: 'Pending', verifyStatusDomicile: 'Pending', verifyStatusCaste: 'Pending', verifyStatusEWS: 'Pending'
                 }));
 
-                // Upload to backend database
                 const formData = new FormData();
                 formData.append('file', file);
+                let res;
                 try {
-                    const res = await fetch(`${API_URL}/candidates/bulk-upload`, { method: 'POST', body: formData });
-                    if (!res.ok) {
-                        const errData = await res.json().catch(() => ({}));
-                        throw new Error(errData.error || errData.message || `Server error: ${res.status}`);
-                    }
-                    
-                    // Clear local storage cache upon successful database sync to avoid browser differences
-                    localStorage.removeItem('mock_candidates');
-                    localStorage.removeItem('deleted_candidates');
-                    
-                    alert(`Bulk upload successful! Records saved to database.`);
-                } catch(backendErr) {
-                    console.error('Backend upload failed, fallback to local:', backendErr);
+                    res = await fetch(`${API_URL}/candidates/bulk-upload`, { method: 'POST', body: formData });
+                } catch(netErr) {
+                    console.error('Network error during upload:', netErr);
                     
                     // Offline fallback: save locally
                     let localData = candidates;
@@ -494,9 +484,24 @@ async function handleBulkUpload(input) {
                     candidates = localData;
                     localStorage.setItem('mock_candidates', JSON.stringify(localData));
                     
-                    alert(`Upload synced locally! ${newCandidates.length} records added.`);
+                    alert(`Upload synced locally (offline mode)! ${newCandidates.length} records added.`);
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    const errMsg = errData.error || errData.message || `Server error: ${res.status}`;
+                    alert(`Upload failed: ${errMsg}\n\nPlease check your Excel file structure/data and try again.`);
+                    hideLoader();
+                    return;
                 }
                 
+                // Clear local storage cache upon successful database sync to avoid browser differences
+                localStorage.removeItem('mock_candidates');
+                localStorage.removeItem('deleted_candidates');
+                
+                alert(`Bulk upload successful! Records saved to database.`);
                 window.location.href = 'dashboard.html';
             } catch(err) {
                 console.error(err);

@@ -189,44 +189,86 @@ app.post('/api/candidates/bulk-upload', upload.single('file'), async (req, res) 
         const worksheet = workbook.getWorksheet(1);
         const candidatesToInsert = [];
 
+        const getCellText = (cell) => {
+            if (!cell) return '';
+            if (cell.value && typeof cell.value === 'object') {
+                if (cell.value.result !== undefined) return cell.value.result.toString().trim();
+                if (cell.value.richText) return cell.value.richText.map(t => t.text).join('').trim();
+            }
+            return cell.text?.toString().trim() || cell.value?.toString().trim() || '';
+        };
+
         worksheet.eachRow((row, rowNumber) => {
             if (rowNumber === 1) return; // Skip header
 
-            const rollNo = row.getCell(3).value?.toString() || '';
-            const regNo = row.getCell(4).value?.toString() || '';
+            const name = getCellText(row.getCell(5));
+            const rollNo = getCellText(row.getCell(3));
             
-            // Use Roll No as part of ID to make it consistent/unique
-            const generatedId = `UPP-${rollNo || Math.floor(Math.random() * 9000) + 1000}`;
+            // Skip empty rows to prevent database failures on empty rows
+            if (!name && !rollNo) return;
 
-            const candidate = {
+            const srNoVal = row.getCell(1).value;
+            const sr_no = parseInt(srNoVal) || (srNoVal && typeof srNoVal === 'object' && parseInt(srNoVal.result)) || 0;
+            const merit_no = getCellText(row.getCell(2));
+            const regNo = getCellText(row.getCell(4));
+            const father_name = getCellText(row.getCell(6));
+            const mobile = getCellText(row.getCell(7));
+            const email = getCellText(row.getCell(8));
+            const district = getCellText(row.getCell(9));
+            const address = getCellText(row.getCell(10));
+            const selected_as = getCellText(row.getCell(11)) || 'UR';
+            const verify_status_10 = getCellText(row.getCell(12)) || 'Pending';
+            const verify_status_12 = getCellText(row.getCell(13)) || 'Pending';
+            const verify_status_tech = getCellText(row.getCell(14)) || 'Pending';
+            const verify_status_domicile = getCellText(row.getCell(15)) || 'Pending';
+            const verify_status_caste = getCellText(row.getCell(16)) || 'Pending';
+            const verify_status_ews = getCellText(row.getCell(17)) || 'Pending';
+
+            // Use Roll No as part of ID to make it consistent/unique
+            const generatedId = `UPP-${rollNo || Math.floor(Math.random() * 90000) + 10000}`;
+
+            candidatesToInsert.push({
                 id: generatedId,
-                sr_no: parseInt(row.getCell(1).value) || 0,
-                merit_no: row.getCell(2).value?.toString() || '',
+                sr_no,
+                merit_no,
                 roll_no: rollNo,
                 reg_no: regNo,
-                name: row.getCell(5).value?.toString() || '',
-                father_name: row.getCell(6).value?.toString() || '',
-                mobile: row.getCell(7).value?.toString() || '',
-                email: row.getCell(8).value?.toString() || '',
-                district: row.getCell(9).value?.toString() || '',
-                address: row.getCell(10).value?.toString() || '',
-                selected_as: row.getCell(11).value?.toString() || 'UR',
-                verify_status_10: row.getCell(12).value?.toString() || 'Pending',
-                verify_status_12: row.getCell(13).value?.toString() || 'Pending',
-                verify_status_tech: row.getCell(14).value?.toString() || 'Pending',
-                verify_status_domicile: row.getCell(15).value?.toString() || 'Pending',
-                verify_status_caste: row.getCell(16).value?.toString() || 'Pending',
-                verify_status_ews: row.getCell(17).value?.toString() || 'Pending',
+                name,
+                father_name,
+                mobile,
+                email,
+                district,
+                address,
+                selected_as,
+                verify_status_10,
+                verify_status_12,
+                verify_status_tech,
+                verify_status_domicile,
+                verify_status_caste,
+                verify_status_ews,
                 status: 'Pending'
-            };
-            candidatesToInsert.push(candidate);
+            });
         });
 
-        const { error } = await supabase.from('candidates').upsert(candidatesToInsert);
+        if (candidatesToInsert.length === 0) {
+            await fs.remove(req.file.path);
+            return res.status(400).json({ error: 'No valid candidate rows found in Excel file.' });
+        }
+
+        // Upsert in chunks of 100 to prevent payload size limits
+        const chunkSize = 100;
+        for (let i = 0; i < candidatesToInsert.length; i += chunkSize) {
+            const chunk = candidatesToInsert.slice(i, i + chunkSize);
+            const { error } = await supabase.from('candidates').upsert(chunk);
+            if (error) throw error;
+        }
+
         await fs.remove(req.file.path);
-        if (error) throw error;
         res.json({ message: `Successfully uploaded ${candidatesToInsert.length} candidates!` });
     } catch (err) {
+        if (req.file && await fs.exists(req.file.path)) {
+            await fs.remove(req.file.path).catch(() => {});
+        }
         console.error('Bulk Upload Error:', err);
         res.status(500).json({ error: err.message });
     }
