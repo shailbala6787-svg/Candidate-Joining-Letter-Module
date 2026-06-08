@@ -1,4 +1,19 @@
 const API_URL = 'https://candidate-joining-letter-module.onrender.com/api';
+
+// Fetch helper with timeout to prevent slow page loads when backend or database is offline/sleeping
+async function fetchWithTimeout(url, options = {}, timeout = 2000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+    } catch (error) {
+        clearTimeout(id);
+        throw error;
+    }
+}
+
 // Authentication Check
 if (!window.location.pathname.includes('login.html')) {
     if (localStorage.getItem('isLoggedIn') !== 'true') {
@@ -69,11 +84,11 @@ function generatePaginationHtml(currentPage, totalPages, changeFnName) {
 async function fetchData() {
     try {
         const fetchTasks = [
-            fetch(`${API_URL}/candidates`).then(r => {
+            fetchWithTimeout(`${API_URL}/candidates`).then(r => {
                 if (!r.ok) throw new Error(`Candidates API returned ${r.status}`);
                 return r.json();
             }),
-            fetch(`${API_URL}/stats`).then(r => {
+            fetchWithTimeout(`${API_URL}/stats`).then(r => {
                 if (!r.ok) throw new Error(`Stats API returned ${r.status}`);
                 return r.json();
             })
@@ -84,7 +99,7 @@ async function fetchData() {
         if (cachedDistricts) {
             districts = JSON.parse(cachedDistricts);
         } else {
-            fetchTasks.push(fetch(`${API_URL}/districts`).then(r => {
+            fetchTasks.push(fetchWithTimeout(`${API_URL}/districts`).then(r => {
                 if (!r.ok) throw new Error(`Districts API returned ${r.status}`);
                 return r.json();
             }).then(data => {
