@@ -1031,21 +1031,38 @@ function renderJoiningLetterTable() {
     const end = start + letterPageSize;
     const paginatedItems = verifiedOnes.slice(start, end);
 
-    tbody.innerHTML = paginatedItems.map((c, index) => `
-        <tr>
-            <td>${start + index + 1}</td>
-            <td>${c.id}</td>
-            <td>${c.rollNo || 'N/A'}</td>
-            <td>${c.name}</td>
-            <td><span class="status-badge status-verified">Verified</span></td>
-            <td>${c.district || 'N/A'}</td>
-            <td>
-                <button class="btn btn-download" onclick="openLetterPreview('${c.id}')">
-                    <i class="fa-solid fa-file-signature"></i> Issue Joining Letter
-                </button>
-            </td>
-        </tr>
-    `).join('') || '<tr><td colspan="7" style="text-align:center">No verified candidates found. Please verify certificates first.</td></tr>';
+    tbody.innerHTML = paginatedItems.map((c, index) => {
+        const isIssued = c.issuedLetter === true || c.issuedLetter === 'true';
+        return `
+            <tr>
+                <td>${start + index + 1}</td>
+                <td>${c.id}</td>
+                <td>${c.rollNo || 'N/A'}</td>
+                <td>${c.name}</td>
+                <td><span class="status-badge status-verified">Verified</span></td>
+                <td>${c.district || 'N/A'}</td>
+                <td>
+                    <div style="display: flex; flex-direction: column; gap: 6px; align-items: center; min-width: 150px;">
+                        ${isIssued ? `
+                            <span class="status-badge status-verified" style="font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-check-double"></i> Issued
+                            </span>
+                            <button class="btn" style="font-size: 0.8rem; padding: 6px 12px; width: 100%; background: #e8f4fd; color: #1e88e5; border: 1px solid #bbdefb; border-radius: 6px; font-weight: 500;" onclick="openLetterPreview('${c.id}')">
+                                <i class="fa-solid fa-print"></i> Re-print Letter
+                            </button>
+                        ` : `
+                            <span class="status-badge status-pending" style="font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-clock"></i> Pending
+                            </span>
+                            <button class="btn btn-download" style="font-size: 0.8rem; padding: 6px 12px; width: 100%; border-radius: 6px; font-weight: 500;" onclick="openLetterPreview('${c.id}')">
+                                <i class="fa-solid fa-file-signature"></i> Issue Letter
+                            </button>
+                        `}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('') || '<tr><td colspan="7" style="text-align:center">No verified candidates found. Please verify certificates first.</td></tr>';
 
     renderLetterPaginationControls(verifiedOnes.length);
 }
