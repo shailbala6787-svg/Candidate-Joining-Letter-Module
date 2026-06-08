@@ -118,14 +118,20 @@ async function fetchData() {
         candidates = apiCandidates;
         
         // Recalculate stats with the merged candidates
-        const verified10th = candidates.filter(c => c.verifyStatus10 === 'Verified').length;
-        const verified12th = candidates.filter(c => c.verifyStatus12 === 'Verified').length;
-        const verifiedTech = candidates.filter(c => c.verifyStatusTech === 'Verified').length;
-        const verifiedDomicile = candidates.filter(c => c.verifyStatusDomicile === 'Verified').length;
-        const verifiedCaste = candidates.filter(c => c.verifyStatusCaste === 'Verified').length;
-        const verifiedEWS = candidates.filter(c => c.verifyStatusEWS === 'Verified').length;
+        const isVerified = (val) => {
+            if (!val) return false;
+            const s = val.toString().trim().toLowerCase();
+            return s === 'verified' || s === 'offline verified' || s === 'n/a';
+        };
+
+        const verified10th = candidates.filter(c => isVerified(c.verifyStatus10)).length;
+        const verified12th = candidates.filter(c => isVerified(c.verifyStatus12)).length;
+        const verifiedTech = candidates.filter(c => isVerified(c.verifyStatusTech)).length;
+        const verifiedDomicile = candidates.filter(c => isVerified(c.verifyStatusDomicile)).length;
+        const verifiedCaste = candidates.filter(c => isVerified(c.verifyStatusCaste)).length;
+        const verifiedEWS = candidates.filter(c => isVerified(c.verifyStatusEWS)).length;
         const totalVerified = candidates.filter(c => c.status === 'Verified' || c.status === 'Offline Verified').length;
-        const pendingVerification = candidates.filter(c => c.status === 'Pending').length;
+        const pendingVerification = candidates.filter(c => c.status !== 'Verified' && c.status !== 'Offline Verified').length;
         const totalIssuedLetters = candidates.filter(c => c.issuedLetter === true || c.issuedLetter === 'true').length;
         const postingAssigned = candidates.filter(c => c.postingDistrict && c.postingDistrict !== 'Unassigned' && c.postingDistrict !== 'Not Allotted' && c.postingDistrict !== '').length;
 
@@ -159,14 +165,20 @@ async function fetchData() {
             candidates = candidates.filter(c => !deletedIds.includes(c.id));
         }
 
-        const verified10th = candidates.filter(c => c.verifyStatus10 === 'Verified').length;
-        const verified12th = candidates.filter(c => c.verifyStatus12 === 'Verified').length;
-        const verifiedTech = candidates.filter(c => c.verifyStatusTech === 'Verified').length;
-        const verifiedDomicile = candidates.filter(c => c.verifyStatusDomicile === 'Verified').length;
-        const verifiedCaste = candidates.filter(c => c.verifyStatusCaste === 'Verified').length;
-        const verifiedEWS = candidates.filter(c => c.verifyStatusEWS === 'Verified').length;
+        const isVerified = (val) => {
+            if (!val) return false;
+            const s = val.toString().trim().toLowerCase();
+            return s === 'verified' || s === 'offline verified' || s === 'n/a';
+        };
+
+        const verified10th = candidates.filter(c => isVerified(c.verifyStatus10)).length;
+        const verified12th = candidates.filter(c => isVerified(c.verifyStatus12)).length;
+        const verifiedTech = candidates.filter(c => isVerified(c.verifyStatusTech)).length;
+        const verifiedDomicile = candidates.filter(c => isVerified(c.verifyStatusDomicile)).length;
+        const verifiedCaste = candidates.filter(c => isVerified(c.verifyStatusCaste)).length;
+        const verifiedEWS = candidates.filter(c => isVerified(c.verifyStatusEWS)).length;
         const totalVerified = candidates.filter(c => c.status === 'Verified' || c.status === 'Offline Verified').length;
-        const pendingVerification = candidates.filter(c => c.status === 'Pending').length;
+        const pendingVerification = candidates.filter(c => c.status !== 'Verified' && c.status !== 'Offline Verified').length;
         const totalIssuedLetters = candidates.filter(c => c.issuedLetter === true || c.issuedLetter === 'true').length;
         const postingAssigned = candidates.filter(c => c.postingDistrict && c.postingDistrict !== 'Unassigned' && c.postingDistrict !== 'Not Allotted' && c.postingDistrict !== '').length;
 
@@ -286,7 +298,7 @@ function initCharts() {
     // Dynamic data for charts
     const verificationData = {
         verified: candidates.filter(c => c.status === 'Verified' || c.status === 'Offline Verified').length,
-        pending: candidates.filter(c => c.status === 'Pending').length
+        pending: candidates.filter(c => c.status !== 'Verified' && c.status !== 'Offline Verified').length
     };
 
     const districtCounts = {};

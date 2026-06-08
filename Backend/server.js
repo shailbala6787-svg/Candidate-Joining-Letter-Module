@@ -144,6 +144,41 @@ app.get('/api/candidates/sample-excel', async (req, res) => {
     }
 });
 
+app.post('/api/candidates', upload.none(), async (req, res) => {
+    try {
+        const candidateData = mapToSupabase(req.body);
+        
+        if (!candidateData.id) {
+            candidateData.id = `UPP-${Math.floor(Math.random() * 90000) + 10000}`;
+        }
+        
+        if (!candidateData.status) candidateData.status = 'Pending';
+        
+        // Get max sr_no and increment
+        const { data: maxCand, error: maxError } = await supabase
+            .from('candidates')
+            .select('sr_no')
+            .order('sr_no', { ascending: false })
+            .limit(1);
+            
+        if (maxError) throw maxError;
+        const nextSrNo = (maxCand && maxCand.length > 0) ? (maxCand[0].sr_no + 1) : 1;
+        candidateData.sr_no = nextSrNo;
+
+        const { data, error } = await supabase
+            .from('candidates')
+            .insert(candidateData)
+            .select();
+
+        if (error) throw error;
+        console.log(`[POST] Candidate created: ${data[0].id}`);
+        res.json(mapToFrontend(data[0]));
+    } catch (err) {
+        console.error('[POST] Create error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Bulk Upload (Updated indices for removed ID column)
 app.post('/api/candidates/bulk-upload', upload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
@@ -283,18 +318,24 @@ app.get('/api/stats', async (req, res) => {
         const { data, error } = await supabase.from('candidates').select('status, issued_letter, verify_status_10, verify_status_12, verify_status_tech, verify_status_domicile, verify_status_caste, verify_status_ews, posting_district');
         if (error) throw error;
 
+        const isValVerified = (val) => {
+            if (!val) return false;
+            const s = val.toString().trim().toLowerCase();
+            return s === 'verified' || s === 'offline verified' || s === 'n/a';
+        };
+
         const stats = {
             totalCandidates: data.length,
             totalVerified: data.filter(c => c.status === 'Verified' || c.status === 'Offline Verified').length,
             pendingVerification: data.filter(c => c.status !== 'Verified' && c.status !== 'Offline Verified').length,
             totalIssuedLetters: data.filter(c => c.issued_letter === true || c.issued_letter === 'true').length,
-            verified10th: data.filter(c => c.verify_status_10 === 'Verified').length,
-            verified12th: data.filter(c => c.verify_status_12 === 'Verified').length,
-            verifiedTech: data.filter(c => c.verify_status_tech === 'Verified').length,
-            verifiedDomicile: data.filter(c => c.verify_status_domicile === 'Verified').length,
-            verifiedCaste: data.filter(c => c.verify_status_caste === 'Verified').length,
-            verifiedEWS: data.filter(c => c.verify_status_ews === 'Verified').length,
-            postingAssigned: data.filter(c => c.posting_district && c.posting_district !== 'Unassigned' && c.posting_district !== '').length
+            verified10th: data.filter(c => isValVerified(c.verify_status_10)).length,
+            verified12th: data.filter(c => isValVerified(c.verify_status_12)).length,
+            verifiedTech: data.filter(c => isValVerified(c.verify_status_tech)).length,
+            verifiedDomicile: data.filter(c => isValVerified(c.verify_status_domicile)).length,
+            verifiedCaste: data.filter(c => isValVerified(c.verify_status_caste)).length,
+            verifiedEWS: data.filter(c => isValVerified(c.verify_status_ews)).length,
+            postingAssigned: data.filter(c => c.posting_district && c.posting_district !== 'Unassigned' && c.posting_district !== 'Not Allotted' && c.posting_district !== '').length
         };
         console.log(`[GET] Stats calculated for ${data?.length || 0} candidates`);
         res.json(stats);
