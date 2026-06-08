@@ -114,32 +114,14 @@ async function fetchData() {
 
         const results = await Promise.all(fetchTasks);
         let apiCandidates = results[0];
-        
-        // Apply local deletions
-        if (localStorage.getItem('deleted_candidates')) {
-            const deletedIds = JSON.parse(localStorage.getItem('deleted_candidates'));
-            apiCandidates = apiCandidates.filter(c => !deletedIds.includes(c.id));
-        }
 
         stats = results[1];
         if (results[2]) districts = results[2];
 
-        // Merge locally saved mock candidates with API data
-        let localCandidates = [];
-        if (localStorage.getItem('mock_candidates')) {
-            localCandidates = JSON.parse(localStorage.getItem('mock_candidates'));
-        }
-        
-        // Merge local changes into API candidates
-        localCandidates.forEach(localCand => {
-            const exists = apiCandidates.find(c => c.id === localCand.id);
-            if (!exists) {
-                apiCandidates.push(localCand);
-            } else {
-                Object.assign(exists, localCand);
-            }
-        });
+        // Database is online: use API data directly as the single source of truth and clear local storage caches
         candidates = apiCandidates;
+        localStorage.removeItem('mock_candidates');
+        localStorage.removeItem('deleted_candidates');
         
         // Recalculate stats with the merged candidates
         const isVerified = (val) => {
@@ -485,25 +467,36 @@ async function handleBulkUpload(input) {
                     verifyStatus10: 'Pending', verifyStatus12: 'Pending', verifyStatusTech: 'Pending', verifyStatusDomicile: 'Pending', verifyStatusCaste: 'Pending', verifyStatusEWS: 'Pending'
                 }));
 
-                // Try backend (optional, won't block local storage)
+                // Upload to backend database
                 const formData = new FormData();
                 formData.append('file', file);
                 try {
-                    await fetch(`${API_URL}/candidates/bulk-upload`, { method: 'POST', body: formData });
+                    const res = await fetch(`${API_URL}/candidates/bulk-upload`, { method: 'POST', body: formData });
+                    if (!res.ok) {
+                        const errData = await res.json().catch(() => ({}));
+                        throw new Error(errData.error || errData.message || `Server error: ${res.status}`);
+                    }
+                    
+                    // Clear local storage cache upon successful database sync to avoid browser differences
+                    localStorage.removeItem('mock_candidates');
+                    localStorage.removeItem('deleted_candidates');
+                    
+                    alert(`Bulk upload successful! Records saved to database.`);
                 } catch(backendErr) {
-                    console.log('Backend sync failed, storing locally only.');
+                    console.error('Backend upload failed, fallback to local:', backendErr);
+                    
+                    // Offline fallback: save locally
+                    let localData = candidates;
+                    if (localStorage.getItem('mock_candidates')) {
+                        localData = JSON.parse(localStorage.getItem('mock_candidates'));
+                    }
+                    localData.push(...newCandidates);
+                    candidates = localData;
+                    localStorage.setItem('mock_candidates', JSON.stringify(localData));
+                    
+                    alert(`Upload synced locally! ${newCandidates.length} records added.`);
                 }
                 
-                // Save locally so dashboard updates instantly
-                let localData = candidates;
-                if (localStorage.getItem('mock_candidates')) {
-                    localData = JSON.parse(localStorage.getItem('mock_candidates'));
-                }
-                localData.push(...newCandidates);
-                candidates = localData;
-                localStorage.setItem('mock_candidates', JSON.stringify(localData));
-                
-                alert(`Bulk upload successful! ${newCandidates.length} records added.`);
                 window.location.href = 'dashboard.html';
             } catch(err) {
                 console.error(err);
