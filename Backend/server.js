@@ -250,21 +250,28 @@ app.post('/api/candidates/bulk-upload', upload.single('file'), async (req, res) 
             });
         });
 
-        if (candidatesToInsert.length === 0) {
+        // Deduplicate the array by ID (keep the last occurrence in case of duplicates in the Excel file)
+        const uniqueCandidatesMap = new Map();
+        for (const candidate of candidatesToInsert) {
+            uniqueCandidatesMap.set(candidate.id, candidate);
+        }
+        const deduplicatedCandidates = Array.from(uniqueCandidatesMap.values());
+
+        if (deduplicatedCandidates.length === 0) {
             await fs.remove(req.file.path);
             return res.status(400).json({ error: 'No valid candidate rows found in Excel file.' });
         }
 
         // Upsert in chunks of 100 to prevent payload size limits
         const chunkSize = 100;
-        for (let i = 0; i < candidatesToInsert.length; i += chunkSize) {
-            const chunk = candidatesToInsert.slice(i, i + chunkSize);
+        for (let i = 0; i < deduplicatedCandidates.length; i += chunkSize) {
+            const chunk = deduplicatedCandidates.slice(i, i + chunkSize);
             const { error } = await supabase.from('candidates').upsert(chunk);
             if (error) throw error;
         }
 
         await fs.remove(req.file.path);
-        res.json({ message: `Successfully uploaded ${candidatesToInsert.length} candidates!` });
+        res.json({ message: `Successfully uploaded ${deduplicatedCandidates.length} candidates!` });
     } catch (err) {
         if (req.file && await fs.exists(req.file.path)) {
             await fs.remove(req.file.path).catch(() => {});
