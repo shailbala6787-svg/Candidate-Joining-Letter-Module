@@ -73,9 +73,19 @@ async function fetchData() {
             fetch(`${API_URL}/stats`).then(r => r.json())
         ];
 
-        // Only fetch districts once per page load/session if possible
-        if (districts.length === 0) {
-            fetchTasks.push(fetch(`${API_URL}/districts`).then(r => r.json()));
+        // Only fetch districts once per session to improve performance
+        const cachedDistricts = sessionStorage.getItem('cached_districts');
+        if (cachedDistricts) {
+            districts = JSON.parse(cachedDistricts);
+        } else {
+            fetchTasks.push(fetch(`${API_URL}/districts`).then(r => r.json()).then(data => {
+                try {
+                    sessionStorage.setItem('cached_districts', JSON.stringify(data));
+                } catch (e) {
+                    console.error('Failed to cache districts in sessionStorage:', e);
+                }
+                return data;
+            }));
         }
 
         const results = await Promise.all(fetchTasks);
