@@ -1,4 +1,19 @@
 const API_URL = 'https://candidate-joining-letter-module.onrender.com/api';
+
+// Fetch helper with timeout to prevent slow page loads when backend or database is offline/sleeping
+async function fetchWithTimeout(url, options = {}, timeout = 2000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+    } catch (error) {
+        clearTimeout(id);
+        throw error;
+    }
+}
+
 // Authentication Check
 if (!window.location.pathname.includes('login.html')) {
     if (localStorage.getItem('isLoggedIn') !== 'true') {
@@ -69,53 +84,60 @@ function generatePaginationHtml(currentPage, totalPages, changeFnName) {
 async function fetchData() {
     try {
         const fetchTasks = [
-            fetch(`${API_URL}/candidates`).then(r => r.json()),
-            fetch(`${API_URL}/stats`).then(r => r.json())
+            fetchWithTimeout(`${API_URL}/candidates`).then(r => {
+                if (!r.ok) throw new Error(`Candidates API returned ${r.status}`);
+                return r.json();
+            }),
+            fetchWithTimeout(`${API_URL}/stats`).then(r => {
+                if (!r.ok) throw new Error(`Stats API returned ${r.status}`);
+                return r.json();
+            })
         ];
 
-        // Only fetch districts once per page load/session if possible
-        if (districts.length === 0) {
-            fetchTasks.push(fetch(`${API_URL}/districts`).then(r => r.json()));
+        // Only fetch districts once per session to improve performance
+        const cachedDistricts = sessionStorage.getItem('cached_districts');
+        if (cachedDistricts) {
+            districts = JSON.parse(cachedDistricts);
+        } else {
+            fetchTasks.push(fetchWithTimeout(`${API_URL}/districts`).then(r => {
+                if (!r.ok) throw new Error(`Districts API returned ${r.status}`);
+                return r.json();
+            }).then(data => {
+                try {
+                    sessionStorage.setItem('cached_districts', JSON.stringify(data));
+                } catch (e) {
+                    console.error('Failed to cache districts in sessionStorage:', e);
+                }
+                return data;
+            }));
         }
 
         const results = await Promise.all(fetchTasks);
         let apiCandidates = results[0];
-        
-        // Apply local deletions
-        if (localStorage.getItem('deleted_candidates')) {
-            const deletedIds = JSON.parse(localStorage.getItem('deleted_candidates'));
-            apiCandidates = apiCandidates.filter(c => !deletedIds.includes(c.id));
-        }
 
         stats = results[1];
         if (results[2]) districts = results[2];
 
-        // Merge locally saved mock candidates with API data
-        let localCandidates = [];
-        if (localStorage.getItem('mock_candidates')) {
-            localCandidates = JSON.parse(localStorage.getItem('mock_candidates'));
-        }
-        
-        // Merge local changes into API candidates
-        localCandidates.forEach(localCand => {
-            const exists = apiCandidates.find(c => c.id === localCand.id);
-            if (!exists) {
-                apiCandidates.push(localCand);
-            } else {
-                Object.assign(exists, localCand);
-            }
-        });
+        // Database is online: use API data directly as the single source of truth and clear local storage caches
         candidates = apiCandidates;
+        localStorage.removeItem('mock_candidates');
+        localStorage.removeItem('deleted_candidates');
         
         // Recalculate stats with the merged candidates
-        const verified10th = candidates.filter(c => c.verifyStatus10 === 'Verified').length;
-        const verified12th = candidates.filter(c => c.verifyStatus12 === 'Verified').length;
-        const verifiedTech = candidates.filter(c => c.verifyStatusTech === 'Verified').length;
-        const verifiedDomicile = candidates.filter(c => c.verifyStatusDomicile === 'Verified').length;
-        const verifiedCaste = candidates.filter(c => c.verifyStatusCaste === 'Verified').length;
-        const verifiedEWS = candidates.filter(c => c.verifyStatusEWS === 'Verified').length;
+        const isVerified = (val) => {
+            if (!val) return false;
+            const s = val.toString().trim().toLowerCase();
+            return s === 'verified' || s === 'offline verified' || s === 'n/a';
+        };
+
+        const verified10th = candidates.filter(c => isVerified(c.verifyStatus10)).length;
+        const verified12th = candidates.filter(c => isVerified(c.verifyStatus12)).length;
+        const verifiedTech = candidates.filter(c => isVerified(c.verifyStatusTech)).length;
+        const verifiedDomicile = candidates.filter(c => isVerified(c.verifyStatusDomicile)).length;
+        const verifiedCaste = candidates.filter(c => isVerified(c.verifyStatusCaste)).length;
+        const verifiedEWS = candidates.filter(c => isVerified(c.verifyStatusEWS)).length;
         const totalVerified = candidates.filter(c => c.status === 'Verified' || c.status === 'Offline Verified').length;
-        const pendingVerification = candidates.filter(c => c.status === 'Pending').length;
+        const pendingVerification = candidates.filter(c => c.status !== 'Verified' && c.status !== 'Offline Verified').length;
         const totalIssuedLetters = candidates.filter(c => c.issuedLetter === true || c.issuedLetter === 'true').length;
         const postingAssigned = candidates.filter(c => c.postingDistrict && c.postingDistrict !== 'Unassigned' && c.postingDistrict !== 'Not Allotted' && c.postingDistrict !== '').length;
 
@@ -149,14 +171,20 @@ async function fetchData() {
             candidates = candidates.filter(c => !deletedIds.includes(c.id));
         }
 
-        const verified10th = candidates.filter(c => c.verifyStatus10 === 'Verified').length;
-        const verified12th = candidates.filter(c => c.verifyStatus12 === 'Verified').length;
-        const verifiedTech = candidates.filter(c => c.verifyStatusTech === 'Verified').length;
-        const verifiedDomicile = candidates.filter(c => c.verifyStatusDomicile === 'Verified').length;
-        const verifiedCaste = candidates.filter(c => c.verifyStatusCaste === 'Verified').length;
-        const verifiedEWS = candidates.filter(c => c.verifyStatusEWS === 'Verified').length;
+        const isVerified = (val) => {
+            if (!val) return false;
+            const s = val.toString().trim().toLowerCase();
+            return s === 'verified' || s === 'offline verified' || s === 'n/a';
+        };
+
+        const verified10th = candidates.filter(c => isVerified(c.verifyStatus10)).length;
+        const verified12th = candidates.filter(c => isVerified(c.verifyStatus12)).length;
+        const verifiedTech = candidates.filter(c => isVerified(c.verifyStatusTech)).length;
+        const verifiedDomicile = candidates.filter(c => isVerified(c.verifyStatusDomicile)).length;
+        const verifiedCaste = candidates.filter(c => isVerified(c.verifyStatusCaste)).length;
+        const verifiedEWS = candidates.filter(c => isVerified(c.verifyStatusEWS)).length;
         const totalVerified = candidates.filter(c => c.status === 'Verified' || c.status === 'Offline Verified').length;
-        const pendingVerification = candidates.filter(c => c.status === 'Pending').length;
+        const pendingVerification = candidates.filter(c => c.status !== 'Verified' && c.status !== 'Offline Verified').length;
         const totalIssuedLetters = candidates.filter(c => c.issuedLetter === true || c.issuedLetter === 'true').length;
         const postingAssigned = candidates.filter(c => c.postingDistrict && c.postingDistrict !== 'Unassigned' && c.postingDistrict !== 'Not Allotted' && c.postingDistrict !== '').length;
 
@@ -276,7 +304,7 @@ function initCharts() {
     // Dynamic data for charts
     const verificationData = {
         verified: candidates.filter(c => c.status === 'Verified' || c.status === 'Offline Verified').length,
-        pending: candidates.filter(c => c.status === 'Pending').length
+        pending: candidates.filter(c => c.status !== 'Verified' && c.status !== 'Offline Verified').length
     };
 
     const districtCounts = {};
@@ -439,25 +467,41 @@ async function handleBulkUpload(input) {
                     verifyStatus10: 'Pending', verifyStatus12: 'Pending', verifyStatusTech: 'Pending', verifyStatusDomicile: 'Pending', verifyStatusCaste: 'Pending', verifyStatusEWS: 'Pending'
                 }));
 
-                // Try backend (optional, won't block local storage)
                 const formData = new FormData();
                 formData.append('file', file);
+                let res;
                 try {
-                    await fetch(`${API_URL}/candidates/bulk-upload`, { method: 'POST', body: formData });
-                } catch(backendErr) {
-                    console.log('Backend sync failed, storing locally only.');
+                    res = await fetch(`${API_URL}/candidates/bulk-upload`, { method: 'POST', body: formData });
+                } catch(netErr) {
+                    console.error('Network error during upload:', netErr);
+                    
+                    // Offline fallback: save locally
+                    let localData = candidates;
+                    if (localStorage.getItem('mock_candidates')) {
+                        localData = JSON.parse(localStorage.getItem('mock_candidates'));
+                    }
+                    localData.push(...newCandidates);
+                    candidates = localData;
+                    localStorage.setItem('mock_candidates', JSON.stringify(localData));
+                    
+                    alert(`Upload synced locally (offline mode)! ${newCandidates.length} records added.`);
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    const errMsg = errData.error || errData.message || `Server error: ${res.status}`;
+                    alert(`Upload failed: ${errMsg}\n\nPlease check your Excel file structure/data and try again.`);
+                    hideLoader();
+                    return;
                 }
                 
-                // Save locally so dashboard updates instantly
-                let localData = candidates;
-                if (localStorage.getItem('mock_candidates')) {
-                    localData = JSON.parse(localStorage.getItem('mock_candidates'));
-                }
-                localData.push(...newCandidates);
-                candidates = localData;
-                localStorage.setItem('mock_candidates', JSON.stringify(localData));
+                // Clear local storage cache upon successful database sync to avoid browser differences
+                localStorage.removeItem('mock_candidates');
+                localStorage.removeItem('deleted_candidates');
                 
-                alert(`Bulk upload successful! ${newCandidates.length} records added.`);
+                alert(`Bulk upload successful! Records saved to database.`);
                 window.location.href = 'dashboard.html';
             } catch(err) {
                 console.error(err);
@@ -985,21 +1029,38 @@ function renderJoiningLetterTable() {
     const end = start + letterPageSize;
     const paginatedItems = verifiedOnes.slice(start, end);
 
-    tbody.innerHTML = paginatedItems.map((c, index) => `
-        <tr>
-            <td>${start + index + 1}</td>
-            <td>${c.id}</td>
-            <td>${c.rollNo || 'N/A'}</td>
-            <td>${c.name}</td>
-            <td><span class="status-badge status-verified">Verified</span></td>
-            <td>${c.district || 'N/A'}</td>
-            <td>
-                <button class="btn btn-download" onclick="openLetterPreview('${c.id}')">
-                    <i class="fa-solid fa-file-signature"></i> Issue Joining Letter
-                </button>
-            </td>
-        </tr>
-    `).join('') || '<tr><td colspan="7" style="text-align:center">No verified candidates found. Please verify certificates first.</td></tr>';
+    tbody.innerHTML = paginatedItems.map((c, index) => {
+        const isIssued = c.issuedLetter === true || c.issuedLetter === 'true';
+        return `
+            <tr>
+                <td>${start + index + 1}</td>
+                <td>${c.id}</td>
+                <td>${c.rollNo || 'N/A'}</td>
+                <td>${c.name}</td>
+                <td><span class="status-badge status-verified">Verified</span></td>
+                <td>${c.district || 'N/A'}</td>
+                <td>
+                    <div style="display: flex; flex-direction: column; gap: 6px; align-items: center; min-width: 150px;">
+                        ${isIssued ? `
+                            <span class="status-badge status-verified" style="font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-check-double"></i> Issued
+                            </span>
+                            <button class="btn" style="font-size: 0.8rem; padding: 6px 12px; width: 100%; background: #e8f4fd; color: #1e88e5; border: 1px solid #bbdefb; border-radius: 6px; font-weight: 500;" onclick="openLetterPreview('${c.id}')">
+                                <i class="fa-solid fa-print"></i> Re-print Letter
+                            </button>
+                        ` : `
+                            <span class="status-badge status-pending" style="font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-clock"></i> Pending
+                            </span>
+                            <button class="btn btn-download" style="font-size: 0.8rem; padding: 6px 12px; width: 100%; border-radius: 6px; font-weight: 500;" onclick="openLetterPreview('${c.id}')">
+                                <i class="fa-solid fa-file-signature"></i> Issue Letter
+                            </button>
+                        `}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('') || '<tr><td colspan="7" style="text-align:center">No verified candidates found. Please verify certificates first.</td></tr>';
 
     renderLetterPaginationControls(verifiedOnes.length);
 }
