@@ -14,23 +14,23 @@ let currentPreviewId = null;
 
 // Pagination State - Dashboard
 let currentPage = 1;
-let pageSize = 10;
+let pageSize = 10000;
 
 // Pagination State - Edit Page
 let currentEditPage = 1;
-let editPageSize = 10;
+let editPageSize = 10000;
 
 // Pagination State - Verification Page
 let currentVerifyPage = 1;
-let verifyPageSize = 10;
+let verifyPageSize = 10000;
 
 // Pagination State - Joining Letter Page
 let currentLetterPage = 1;
-let letterPageSize = 10;
+let letterPageSize = 10000;
 
 // Pagination State - Allotment Page
 let currentAllotPage = 1;
-let allotPageSize = 10;
+let allotPageSize = 10000;
 
 // DOM Elements (Check if they exist before using)
 const getLoader = () => document.getElementById('loader');
