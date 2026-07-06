@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>District Capacities | UP Police</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="loader-wrapper" id="loader"><div class="loader"></div></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container"><img src="assets/images/logo.png" alt="UP Police Logo"></div>
+            <h2>Uttar Pradesh Police</h2>
+            <p>Joining Letter Management</p>
+        </div>
+        <ul class="menu">
+            <li><a href="dashboard.html"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a></li>
+            <li><a href="candidate-entry.html"><i class="fa-solid fa-user-plus"></i><span>Candidate Entry</span></a></li>
+            <li><a href="candidate-edit.html"><i class="fa-solid fa-user-pen"></i><span>Candidate Edit</span></a></li>
+            <li><a href="certificate-details.html"><i class="fa-solid fa-certificate"></i><span>Certificate Details</span></a></li>
+            <li><a href="joining-letter.html"><i class="fa-solid fa-file-signature"></i><span>Joining Letter Issue</span></a></li>
+            <li><a href="posting-allotment.html"><i class="fa-solid fa-map-location-dot"></i><span>Posting Allotment</span></a></li>
+            <li class="active"><a href="district-capacity.html"><i class="fa-solid fa-building"></i><span>District Capacities</span></a></li>
+            <li class="logout-btn"><a href="login.html"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-navbar">
+            <div class="nav-left"><h3>District Capacities Configuration</h3></div>
+            <div class="nav-right">
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=002147&color=fff" alt="Admin">
+                    <span>Admin Panel</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="table-container fade-in">
+                <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin: 0;">Manage District Seats</h4>
+                </div>
+                <div style="padding: 15px; background: #fff8e1; border-bottom: 1px solid #ffecb3; font-size: 0.9rem; color: #856404;">
+                    <i class="fa-solid fa-circle-info"></i> Click Edit to change the total number of seats or the pre-filled baseline for a district. Posting Allotment will intelligently assign candidates based on these values.
+                </div>
+                
+                <div style="overflow-x: auto; padding: 20px;">
+                    <table style="width: 100%; border-collapse: collapse;" id="capacities-table">
+                        <thead>
+                            <tr>
+                                <th style="background: #f4f6f8; border-bottom: 2px solid #ddd; padding: 12px; text-align: left;">District Name</th>
+                                <th style="background: #f4f6f8; border-bottom: 2px solid #ddd; padding: 12px; text-align: left;">Total Seats Capacity</th>
+                                <th style="background: #f4f6f8; border-bottom: 2px solid #ddd; padding: 12px; text-align: left;">Pre-Filled Baseline</th>
+                                <th style="background: #f4f6f8; border-bottom: 2px solid #ddd; padding: 12px; text-align: left;">Actual Available</th>
+                                <th style="background: #f4f6f8; border-bottom: 2px solid #ddd; padding: 12px; text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="capacities-tbody">
+                            <!-- Injected by script.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/script.js?v=2.5"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', async () => {
+            if(typeof fetchData === 'function') {
+                await fetchData();
+            }
+            if(typeof initCapacityPage === 'function') {
+                initCapacityPage();
+            }
+        });
+    </script>
+</body>
+</html>

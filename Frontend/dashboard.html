@@ -30,6 +30,7 @@
             <li><a href="certificate-details.html"><i class="fa-solid fa-certificate"></i><span>Certificate Details</span></a></li>
             <li><a href="joining-letter.html"><i class="fa-solid fa-file-signature"></i><span>Joining Letter Issue</span></a></li>
             <li><a href="posting-allotment.html"><i class="fa-solid fa-map-location-dot"></i><span>Posting Allotment</span></a></li>
+            <li><a href="district-capacity.html"><i class="fa-solid fa-building"></i><span>District Capacities</span></a></li>
             <li class="logout-btn"><a href="login.html"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a></li>
         </ul>
     </aside>
@@ -65,57 +66,7 @@
                 </div>
             </div>
 
-            <!-- Recent Candidates Table -->
-            <div class="table-container fade-in" style="margin-top: 30px;">
-                <div class="table-header">
-                    <h4>Recent Candidate List</h4>
-                </div>
-                <div class="table-controls-top" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-bottom: 1px solid #eee;">
-                    <div class="page-size">
-                        <span>Show</span>
-                        <select id="pageSizeSelectTop" onchange="changePageSize(this.value)" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd;">
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                            <option value="all">All</option>
-                        </select>
-                        <span>entries</span>
-                    </div>
-                    <div class="pagination" id="table-pagination-top" style="display: flex; gap: 5px;"></div>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Sr. No.</th>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>District</th>
-                            <th>Status</th>
-                            <th>Posting</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recent-candidates-tbody">
-                        <!-- Recent data injected here -->
-                    </tbody>
-                </table>
-                <div class="table-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f9f9f9; border-top: 1px solid #eee;">
-                    <div class="page-size">
-                        <span>Show</span>
-                        <select id="pageSizeSelect" onchange="changePageSize(this.value)" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd;">
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                            <option value="all">All</option>
-                        </select>
-                        <span>entries</span>
-                    </div>
-                    <div class="pagination" id="table-pagination" style="display: flex; gap: 5px;">
-                        <!-- Pagination buttons injected here -->
-                    </div>
-                </div>
-            </div>
+
         </div>
 
         <footer style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem;">
