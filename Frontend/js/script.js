@@ -1573,37 +1573,80 @@ function exportReport(type) {
 }
 
 // --- District Capacity Page ---
-function initCapacityPage() {
+
+// In-memory cache for capacities fetched from API
+let districtCapacitiesCache = null;
+
+async function getDistrictCapacities() {
+    if (districtCapacitiesCache) return districtCapacitiesCache;
+    try {
+        const res = await fetchWithTimeout(`${API_URL}/capacities`);
+        if (res.ok) {
+            const data = await res.json();
+            // If API returned data, use it
+            if (data && Object.keys(data).length > 0) {
+                districtCapacitiesCache = data;
+                return districtCapacitiesCache;
+            }
+        }
+    } catch (e) {
+        console.warn('Capacities API not available, falling back to localStorage:', e.message);
+    }
+    // Fallback: use localStorage
+    const stored = localStorage.getItem('district_capacities');
+    districtCapacitiesCache = stored ? JSON.parse(stored) : {};
+    return districtCapacitiesCache;
+}
+
+function buildDefaultCapacities() {
+    const DEFAULT_CAPACITY = 50;
+    const caps = {};
+    const tier1 = ["Lucknow", "Kanpur Nagar", "Prayagraj", "Varanasi", "Agra"];
+    const tier2 = ["Meerut", "Bareilly", "Gorakhpur", "Aligarh", "Moradabad", "Saharanpur", "Jhansi", "Ayodhya", "Mathura", "Ghaziabad"];
+    const realDistricts = districts.filter(d => d !== "Other");
+    const remaining = realDistricts.filter(d => !tier1.includes(d) && !tier2.includes(d));
+    const tier3 = remaining.slice(0, 20);
+    const tier4 = remaining.slice(20);
+    tier1.forEach(d => caps[d] = { capacity: 150, preFilled: 145 });
+    tier2.forEach(d => caps[d] = { capacity: 80, preFilled: 70 });
+    tier3.forEach(d => caps[d] = { capacity: 50, preFilled: 35 });
+    const capPerT4 = Math.floor(1150 / (tier4.length || 1));
+    const fillPerT4 = Math.floor(575 / (tier4.length || 1));
+    tier4.forEach(d => caps[d] = { capacity: capPerT4, preFilled: fillPerT4 });
+    realDistricts.forEach(d => { if (!caps[d]) caps[d] = { capacity: DEFAULT_CAPACITY, preFilled: 0 }; });
+    return caps;
+}
+
+async function initCapacityPage() {
     const tbody = document.getElementById('capacities-tbody');
     if (!tbody) return;
 
+    showLoader();
+
+    // Ensure districts are loaded
     if (districts.length === 0) {
-        setTimeout(initCapacityPage, 500);
-        return;
+        await fetchData();
     }
 
-    const capacities = getDistrictCapacities();
-    let html = '';
+    districtCapacitiesCache = null; // force refresh
+    let capacities = await getDistrictCapacities();
 
+    // If no capacities in API yet, build defaults
+    if (!capacities || Object.keys(capacities).length === 0) {
+        capacities = buildDefaultCapacities();
+    }
+
+    let html = '';
     const sortedDistricts = [...districts].sort();
 
     sortedDistricts.forEach(d => {
-        let cap = DEFAULT_CAPACITY;
-        let filled = 0;
-        
         const capObj = capacities[d];
-        if (capObj !== undefined) {
-            if (typeof capObj === 'number') cap = capObj;
-            else {
-                cap = capObj.capacity !== undefined ? capObj.capacity : DEFAULT_CAPACITY;
-                filled = capObj.preFilled !== undefined ? capObj.preFilled : 0;
-            }
-        }
-        
+        const cap = capObj ? (capObj.capacity || 50) : 50;
+        const filled = capObj ? (capObj.preFilled || 0) : 0;
         const actuallyFilled = candidates.filter(c => c.postingDistrict === d).length;
         const available = Math.max(0, cap - (filled + actuallyFilled));
-
         const safeId = d.replace(/\s+/g, '-');
+
         html += `
             <tr style="border-bottom: 1px solid #eee;" id="row-${safeId}">
                 <td style="padding: 12px; font-weight: 500; color: #002147;">${d}</td>
@@ -1634,31 +1677,51 @@ function initCapacityPage() {
 function toggleDistrictEdit(safeId, isEdit) {
     const row = document.getElementById(`row-${safeId}`);
     if (!row) return;
-    
     const viewEls = row.querySelectorAll('.view-mode');
     const editEls = row.querySelectorAll('.edit-mode');
-    
     viewEls.forEach(el => el.style.display = isEdit ? 'none' : '');
     editEls.forEach(el => el.style.display = isEdit ? 'inline-block' : 'none');
 }
 
-function saveSingleDistrict(districtName, safeId) {
+async function saveSingleDistrict(districtName, safeId) {
     const capInput = document.getElementById(`input-cap-${safeId}`);
     const filledInput = document.getElementById(`input-filled-${safeId}`);
-    
+
     if (!capInput || !filledInput) return;
-    
+
     const newCap = parseInt(capInput.value);
     const newFilled = parseInt(filledInput.value);
-    
+
     if (isNaN(newCap) || isNaN(newFilled)) {
         alert("Please enter valid numbers");
         return;
     }
-    
-    const capacities = getDistrictCapacities();
-    capacities[districtName] = { capacity: newCap, preFilled: newFilled };
-    localStorage.setItem('district_capacities', JSON.stringify(capacities));
-    
+
+    // Save to API
+    try {
+        const res = await fetch(`${API_URL}/capacities/${encodeURIComponent(districtName)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ capacity: newCap, preFilled: newFilled })
+        });
+        if (!res.ok) throw new Error('API save failed');
+    } catch (e) {
+        console.warn('API save failed, saving to localStorage:', e.message);
+        // Fallback: save to localStorage
+        const stored = localStorage.getItem('district_capacities');
+        const caps = stored ? JSON.parse(stored) : {};
+        caps[districtName] = { capacity: newCap, preFilled: newFilled };
+        localStorage.setItem('district_capacities', JSON.stringify(caps));
+    }
+
+    // Update view
+    document.getElementById(`view-cap-${safeId}`).textContent = newCap;
+    document.getElementById(`view-filled-${safeId}`).textContent = newFilled;
+    toggleDistrictEdit(safeId, false);
+
+    // Refresh the page to recalculate available seats
+    districtCapacitiesCache = null;
     initCapacityPage();
 }
+
+

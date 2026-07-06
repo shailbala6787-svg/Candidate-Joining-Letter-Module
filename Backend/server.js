@@ -394,6 +394,43 @@ app.get('/api/stats', async (req, res) => {
     }
 });
 
+// --- District Capacities API ---
+app.get('/api/capacities', async (req, res) => {
+    try {
+        const { data, error } = await supabase.from('district_capacities').select('*').order('district_name');
+        if (error) throw error;
+        // Convert array to object: { "Lucknow": { capacity: 150, preFilled: 145 }, ... }
+        const result = {};
+        (data || []).forEach(row => {
+            result[row.district_name] = { capacity: row.capacity, preFilled: row.pre_filled };
+        });
+        console.log(`[GET] Capacities fetched: ${data?.length || 0} districts`);
+        res.json(result);
+    } catch (err) {
+        console.error('[GET] Capacities error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put('/api/capacities/:districtName', async (req, res) => {
+    try {
+        const { districtName } = req.params;
+        const { capacity, preFilled } = req.body;
+
+        const { data, error } = await supabase
+            .from('district_capacities')
+            .upsert({ district_name: districtName, capacity: parseInt(capacity), pre_filled: parseInt(preFilled) }, { onConflict: 'district_name' })
+            .select();
+
+        if (error) throw error;
+        console.log(`[PUT] Capacity updated for: ${districtName}`);
+        res.json({ success: true, data: data[0] });
+    } catch (err) {
+        console.error('[PUT] Capacity update error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get('/api/districts', async (req, res) => {
     try {
         const { data, error } = await supabase.from('districts').select('name').order('name');
