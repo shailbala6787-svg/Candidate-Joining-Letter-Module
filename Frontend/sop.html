@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOP | UP Police Joining Letter & Allotment System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #001a3a 0%, #003366 100%);
+            min-height: 100vh;
+            color: #222;
+        }
+
+        /* ---- Header ---- */
+        .sop-header {
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            padding: 18px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .sop-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .sop-header img {
+            width: 54px;
+            height: 54px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+        }
+        .sop-header h1 {
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        .sop-header h1 span {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 400;
+            opacity: 0.75;
+        }
+        .btn-back {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 9px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.28); }
+
+        /* ---- Lang Toggle ---- */
+        .lang-toggle-wrap {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 28px 0 0;
+        }
+        .lang-btn {
+            padding: 10px 32px;
+            border-radius: 30px;
+            border: 2px solid rgba(255,255,255,0.4);
+            background: transparent;
+            color: rgba(255,255,255,0.7);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.25s;
+        }
+        .lang-btn.active {
+            background: #f1c40f;
+            border-color: #f1c40f;
+            color: #001a3a;
+        }
+
+        /* ---- Container ---- */
+        .sop-container {
+            max-width: 900px;
+            margin: 30px auto 60px;
+            padding: 0 20px;
+        }
+
+        /* ---- Page Title ---- */
+        .page-title {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 32px;
+        }
+        .page-title h2 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .page-title p {
+            font-size: 0.95rem;
+            opacity: 0.7;
+            margin-top: 6px;
+        }
+
+        /* ---- Card ---- */
+        .sop-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .sop-card-header {
+            background: linear-gradient(90deg, #002147, #003f80);
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .sop-card-header .step-badge {
+            background: #f1c40f;
+            color: #001a3a;
+            font-weight: 800;
+            font-size: 1.05rem;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .sop-card-header h3 {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .sop-card-header h3 .subtitle {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 400;
+            opacity: 0.65;
+            margin-top: 2px;
+        }
+        .sop-card-header i.icon {
+            margin-left: auto;
+            color: rgba(255,255,255,0.4);
+            font-size: 1.6rem;
+        }
+        .sop-card-body {
+            padding: 22px 28px;
+        }
+
+        /* ---- Steps List ---- */
+        .steps-list {
+            list-style: none;
+            padding: 0;
+        }
+        .steps-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #333;
+        }
+        .steps-list li:last-child { border-bottom: none; }
+        .steps-list li .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #002147;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+        .steps-list li .dot.gold { background: #e0a800; }
+        .steps-list li .dot.green { background: #27ae60; }
+        .steps-list li .dot.red { background: #e74c3c; }
+
+        /* ---- Note Box ---- */
+        .note-box {
+            background: #fff8e1;
+            border-left: 4px solid #f1c40f;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-top: 16px;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.6;
+        }
+        .note-box strong { color: #c77b00; }
+
+        /* ---- Flow Diagram ---- */
+        .flow-wrap {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 10px 0;
+        }
+        .flow-step {
+            background: #eaf1fb;
+            border: 1.5px solid #b3cde8;
+            color: #002147;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+            min-width: 80px;
+        }
+        .flow-arrow {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        /* ---- Credentials Box ---- */
+        .cred-box {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .cred-item {
+            background: #f5f7fa;
+            border: 1.5px solid #dde3ee;
+            border-radius: 10px;
+            padding: 14px 22px;
+            text-align: center;
+            min-width: 130px;
+        }
+        .cred-item .cred-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .cred-item .cred-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #002147;
+        }
+
+        /* ---- Footer ---- */
+        .sop-footer {
+            text-align: center;
+            color: rgba(255,255,255,0.45);
+            font-size: 0.82rem;
+            padding-bottom: 30px;
+        }
+
+        /* ---- Print Button ---- */
+        .print-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.12);
+            border: 1.5px solid rgba(255,255,255,0.3);
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 0 auto 28px;
+            transition: background 0.2s;
+        }
+        .print-btn:hover { background: rgba(255,255,255,0.22); }
+
+        @media print {
+            body { background: #fff !important; }
+            .sop-header, .lang-toggle-wrap, .btn-back, .print-btn { display: none !important; }
+            .sop-card { box-shadow: none; border: 1px solid #ccc; }
+            .page-title h2, .page-title p { color: #000 !important; }
+        }
+
+        @media (max-width: 600px) {
+            .sop-header { padding: 14px 16px; flex-wrap: wrap; gap: 10px; }
+            .sop-card-body { padding: 16px; }
+            .sop-card-header { padding: 14px 16px; }
+            .flow-wrap { gap: 4px; }
+            .flow-step { font-size: 0.72rem; padding: 6px 8px; min-width: 60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="sop-header">
+        <div class="sop-header-left">
+            <img src="assets/images/logo.png" alt="UP Police Logo">
+            <h1>
+                Uttar Pradesh Police
+                <span>Joining Letter &amp; Posting Allotment System — SOP</span>
+            </h1>
+        </div>
+        <a href="login.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Back to Login</a>
+    </div>
+
+    <!-- Language Toggle -->
+    <div class="lang-toggle-wrap">
+        <button class="lang-btn active" id="btn-hi" onclick="switchLang('hi')">🇮🇳 हिन्दी</button>
+        <button class="lang-btn" id="btn-en" onclick="switchLang('en')">🇬🇧 English</button>
+    </div>
+
+    <!-- Print Button -->
+    <div style="display:flex; justify-content:center; margin-top:18px;">
+        <button class="print-btn" onclick="window.print()">
+            <i class="fa-solid fa-print"></i> <span id="print-label">SOP Print / Download करें</span>
+        </button>
+    </div>
+
+    <!-- ============================================================
+         HINDI CONTENT
+    ============================================================ -->
+    <div id="content-hi" class="sop-container">
+        <div class="page-title">
+            <h2>मानक संचालन प्रक्रिया (SOP)</h2>
+            <p>उत्तर प्रदेश पुलिस — Joining Letter एवं Posting Allotment प्रणाली</p>
+        </div>
+
+        <!-- Workflow -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge"><i class="fa-solid fa-diagram-project"></i></div>
+                <h3>सम्पूर्ण कार्यप्रवाह (Workflow)
+                    <span class="subtitle">पूरी प्रक्रिया का क्रम</span>
+                </h3>
+            </div>
+            <div class="sop-card-body">
+                <div class="flow-wrap">
+                    <div class="flow-step">Login</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Candidate Entry</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Certificate Details</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Verification</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Joining Letter Issue</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Posting Allotment</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Dashboard Report</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">1</div>
+                <h3>Login (लॉगिन)
+                    <span class="subtitle">System में प्रवेश</span>
+                </h3>
+                <i class="fa-solid fa-lock icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Browser में <strong>joining.shailbala-uppolice.shop</strong> खोलें।</li>
+                    <li><span class="dot"></span> Username और Password डालकर <strong>"Login to Dashboard"</strong> बटन दबाएं।</li>
+                    <li><span class="dot gold"></span> Username case-insensitive है — <strong>admin</strong> या <strong>Admin</strong> दोनों valid हैं।</li>
+                    <li><span class="dot red"></span> गलत credentials पर <strong>3 सेकंड</strong> का error message दिखेगा।</li>
+                </ul>
+                <div class="cred-box">
+                    <div class="cred-item">
+                        <div class="cred-label">Username</div>
+                        <div class="cred-value">Admin</div>
+                    </div>
+                    <div class="cred-item">
+                        <div class="cred-label">Password</div>
+                        <div class="cred-value">123</div>
+                    </div>
+                </div>
+                <div class="note-box"><strong>नोट:</strong> पहली बार Login के बाद Dashboard load होने में 10-15 सेकंड लग सकते हैं क्योंकि server sleep mode से wake up होता है।</div>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">2</div>
+                <h3>Candidate Entry (उम्मीदवार प्रविष्टि)
+                    <span class="subtitle">नए उम्मीदवार का डेटा दर्ज करना</span>
+                </h3>
+                <i class="fa-solid fa-user-plus icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Sidebar से <strong>"Candidate Entry"</strong> पर क्लिक करें।</li>
+                    <li><span class="dot"></span> Candidate ID <strong>स्वतः generate</strong> होती है (UPP-XXXXX format)।</li>
+                    <li><span class="dot"></span> सभी required fields भरें: Merit No., Roll No., Reg. No., नाम, पिता का नाम, Mobile, District, Category।</li>
+                    <li><span class="dot gold"></span> <strong>Bulk Upload</strong> option से Excel file (.xlsx) द्वारा एक साथ अनेक उम्मीदवार जोड़े जा सकते हैं।</li>
+                    <li><span class="dot gold"></span> Sample Excel template download करने के लिए <strong>"Download Sample Excel"</strong> बटन दबाएं।</li>
+                    <li><span class="dot green"></span> Submit करने पर उम्मीदवार database में <strong>Pending</strong> status के साथ save हो जाता है।</li>
+                </ul>
+                <div class="note-box"><strong>Excel Format:</strong> Sr. No. | Merit No. | Roll No. | Reg No. | Name | Father Name | Mobile | Email | District | Address | Selected As | 10th Status | 12th Status | Tech Status | Domicile Status | Caste Status | EWS Status</div>
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">3</div>
+                <h3>Candidate Edit (उम्मीदवार संपादन)
+                    <span class="subtitle">पहले से दर्ज जानकारी सुधारना</span>
+                </h3>
+                <i class="fa-solid fa-user-pen icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Sidebar से <strong>"Candidate Edit"</strong> पर जाएं।</li>
+                    <li><span class="dot"></span> ID या नाम से Search करके उम्मीदवार को खोजें।</li>
+                    <li><span class="dot"></span> <strong>Edit (✏️)</strong> बटन से जानकारी update करें।</li>
+                    <li><span class="dot red"></span> <strong>Delete (🗑️)</strong> बटन से उम्मीदवार का record स्थायी रूप से हटाएं (confirm करना होगा)।</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">4</div>
+                <h3>Certificate Details (प्रमाण-पत्र विवरण)
+                    <span class="subtitle">दस्तावेज़ सत्यापन स्थिति अपडेट करना</span>
+                </h3>
+                <i class="fa-solid fa-certificate icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Sidebar से <strong>"Certificate Details"</strong> पर जाएं।</li>
+                    <li><span class="dot"></span> प्रत्येक उम्मीदवार के 6 प्रमाण-पत्रों की स्थिति अपडेट करें:
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;• 10वीं प्रमाण-पत्र &nbsp;• 12वीं प्रमाण-पत्र &nbsp;• तकनीकी प्रमाण-पत्र
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;• निवास प्रमाण-पत्र &nbsp;• जाति प्रमाण-पत्र &nbsp;• EWS प्रमाण-पत्र
+                    </li>
+                    <li><span class="dot gold"></span> Status Options: <strong>Verified</strong> / <strong>Pending</strong> / <strong>N/A</strong></li>
+                    <li><span class="dot green"></span> सभी 6 प्रमाण-पत्र Verified या N/A होने पर ही अगले चरण (Verification) की अनुमति मिलती है।</li>
+                </ul>
+                <div class="note-box"><strong>महत्वपूर्ण:</strong> जो प्रमाण-पत्र उम्मीदवार पर लागू नहीं होता (जैसे EWS General के लिए), उसे <strong>N/A</strong> करें।</div>
+            </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">5</div>
+                <h3>Joining Letter Issue (नियुक्ति पत्र जारी करना)
+                    <span class="subtitle">Verified उम्मीदवारों को Joining Letter देना</span>
+                </h3>
+                <i class="fa-solid fa-file-signature icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Sidebar से <strong>"Joining Letter Issue"</strong> पर जाएं।</li>
+                    <li><span class="dot"></span> यहाँ केवल <strong>Verified</strong> status वाले उम्मीदवार ही दिखेंगे।</li>
+                    <li><span class="dot"></span> <strong>"Issue Letter"</strong> बटन दबाने पर उम्मीदवार का <code>issuedLetter = true</code> हो जाता है।</li>
+                    <li><span class="dot gold"></span> <strong>"Print Letter"</strong> बटन से नियुक्ति पत्र print या PDF में save कर सकते हैं।</li>
+                    <li><span class="dot green"></span> Letter issue होने की date स्वतः record होती है।</li>
+                </ul>
+                <div class="note-box"><strong>नोट:</strong> Joining Letter Issue के बाद ही उम्मीदवार <strong>Posting Allotment</strong> के लिए eligible होता है।</div>
+            </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">6</div>
+                <h3>Posting Allotment (तैनाती आवंटन)
+                    <span class="subtitle">उम्मीदवार को जिला आवंटित करना</span>
+                </h3>
+                <i class="fa-solid fa-map-location-dot icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Sidebar से <strong>"Posting Allotment"</strong> पर जाएं।</li>
+                    <li><span class="dot"></span> केवल <strong>Letter Issued</strong> उम्मीदवार ही यहाँ दिखेंगे।</li>
+                    <li><span class="dot"></span> <strong>"Assign District"</strong> बटन से उम्मीदवार को कोई भी UP जिला assign करें।</li>
+                    <li><span class="dot gold"></span> <strong>"District Capacities"</strong> पेज से यह देख सकते हैं कि किस जिले में कितनी सीटें बची हैं।</li>
+                    <li><span class="dot green"></span> Allotment date स्वतः record होती है।</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">7</div>
+                <h3>Dashboard एवं Report
+                    <span class="subtitle">समग्र आँकड़े एवं फ़िल्टर रिपोर्ट</span>
+                </h3>
+                <i class="fa-solid fa-gauge icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Dashboard पर कुल उम्मीदवार, Verified, Pending, Letter Issued और Posting Assigned के <strong>Summary Cards</strong> दिखते हैं।</li>
+                    <li><span class="dot"></span> Chart में <strong>Verification Status</strong> और <strong>District-wise</strong> वितरण देखें।</li>
+                    <li><span class="dot gold"></span> किसी भी Card पर क्लिक करने पर <strong>filtered report</strong> खुलती है (जैसे: सभी Verified उम्मीदवार)।</li>
+                    <li><span class="dot green"></span> Report पेज पर <strong>Excel Export</strong> की सुविधा उपलब्ध है।</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Important Notes -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h3>महत्वपूर्ण नियम एवं सावधानियाँ</h3>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot red"></span> Delete किया गया record <strong>पुनः प्राप्त नहीं</strong> होगा — सावधानी से Delete करें।</li>
+                    <li><span class="dot red"></span> Bulk Upload में <strong>Duplicate Roll No.</strong> होने पर पुराना record overwrite हो जाएगा।</li>
+                    <li><span class="dot gold"></span> Certificate Details अपडेट करने के बाद ही <strong>Verify</strong> करें, अन्यथा Verification reject होगी।</li>
+                    <li><span class="dot gold"></span> System <strong>Internet connection</strong> के बिना काम नहीं करेगा — data cloud database (Supabase) में store होता है।</li>
+                    <li><span class="dot green"></span> पहली बार login के बाद server start होने में <strong>10-15 सेकंड</strong> लग सकते हैं — यह सामान्य है।</li>
+                    <li><span class="dot"></span> Session बंद करने से पहले <strong>Logout</strong> अवश्य करें।</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="sop-footer" style="margin-top:10px;">
+            © 2026 उत्तर प्रदेश पुलिस | Joining Letter Management System | यह SOP केवल authorized users के लिए है।
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ENGLISH CONTENT
+    ============================================================ -->
+    <div id="content-en" class="sop-container" style="display:none;">
+        <div class="page-title">
+            <h2>Standard Operating Procedure (SOP)</h2>
+            <p>Uttar Pradesh Police — Joining Letter &amp; Posting Allotment System</p>
+        </div>
+
+        <!-- Workflow -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge"><i class="fa-solid fa-diagram-project"></i></div>
+                <h3>Complete Workflow
+                    <span class="subtitle">End-to-end process sequence</span>
+                </h3>
+            </div>
+            <div class="sop-card-body">
+                <div class="flow-wrap">
+                    <div class="flow-step">Login</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Candidate Entry</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Certificate Details</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Verification</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Joining Letter Issue</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Posting Allotment</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Dashboard Report</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">1</div>
+                <h3>Login
+                    <span class="subtitle">Accessing the system</span>
+                </h3>
+                <i class="fa-solid fa-lock icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Open <strong>joining.shailbala-uppolice.shop</strong> in your browser.</li>
+                    <li><span class="dot"></span> Enter your Username and Password, then click <strong>"Login to Dashboard"</strong>.</li>
+                    <li><span class="dot gold"></span> Username is case-insensitive — both <strong>admin</strong> and <strong>Admin</strong> are valid.</li>
+                    <li><span class="dot red"></span> Invalid credentials will show an error message for <strong>3 seconds</strong>.</li>
+                </ul>
+                <div class="cred-box">
+                    <div class="cred-item">
+                        <div class="cred-label">Username</div>
+                        <div class="cred-value">Admin</div>
+                    </div>
+                    <div class="cred-item">
+                        <div class="cred-label">Password</div>
+                        <div class="cred-value">123</div>
+                    </div>
+                </div>
+                <div class="note-box"><strong>Note:</strong> On first login, the Dashboard may take 10–15 seconds to load as the server wakes up from sleep mode.</div>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">2</div>
+                <h3>Candidate Entry
+                    <span class="subtitle">Registering new candidates</span>
+                </h3>
+                <i class="fa-solid fa-user-plus icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Click <strong>"Candidate Entry"</strong> from the sidebar menu.</li>
+                    <li><span class="dot"></span> Candidate ID is <strong>auto-generated</strong> (format: UPP-XXXXX).</li>
+                    <li><span class="dot"></span> Fill all required fields: Merit No., Roll No., Reg. No., Name, Father's Name, Mobile, District, Category.</li>
+                    <li><span class="dot gold"></span> Use <strong>Bulk Upload</strong> to add multiple candidates at once via an Excel (.xlsx) file.</li>
+                    <li><span class="dot gold"></span> Click <strong>"Download Sample Excel"</strong> to get the correct template format.</li>
+                    <li><span class="dot green"></span> On submission, the candidate is saved in the database with <strong>Pending</strong> status.</li>
+                </ul>
+                <div class="note-box"><strong>Excel Format:</strong> Sr. No. | Merit No. | Roll No. | Reg No. | Name | Father Name | Mobile | Email | District | Address | Selected As | 10th Status | 12th Status | Tech Status | Domicile Status | Caste Status | EWS Status</div>
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">3</div>
+                <h3>Candidate Edit
+                    <span class="subtitle">Modifying existing records</span>
+                </h3>
+                <i class="fa-solid fa-user-pen icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Go to <strong>"Candidate Edit"</strong> from the sidebar.</li>
+                    <li><span class="dot"></span> Search candidates by ID or name using the search box.</li>
+                    <li><span class="dot"></span> Click the <strong>Edit (✏️)</strong> button to modify candidate information.</li>
+                    <li><span class="dot red"></span> Click the <strong>Delete (🗑️)</strong> button to permanently remove a record (confirmation required).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">4</div>
+                <h3>Certificate Details
+                    <span class="subtitle">Updating document verification status</span>
+                </h3>
+                <i class="fa-solid fa-certificate icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Go to <strong>"Certificate Details"</strong> from the sidebar.</li>
+                    <li><span class="dot"></span> Update the status of all 6 certificates for each candidate:
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;• 10th Certificate &nbsp;• 12th Certificate &nbsp;• Technical Certificate
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;• Domicile Certificate &nbsp;• Caste Certificate &nbsp;• EWS Certificate
+                    </li>
+                    <li><span class="dot gold"></span> Available Status Options: <strong>Verified</strong> / <strong>Pending</strong> / <strong>N/A</strong></li>
+                    <li><span class="dot green"></span> All 6 certificates must be either Verified or N/A before final Verification is allowed.</li>
+                </ul>
+                <div class="note-box"><strong>Important:</strong> If a certificate is not applicable to a candidate (e.g., EWS for General category), mark it as <strong>N/A</strong>.</div>
+            </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">5</div>
+                <h3>Joining Letter Issue
+                    <span class="subtitle">Issuing appointment letters to verified candidates</span>
+                </h3>
+                <i class="fa-solid fa-file-signature icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Go to <strong>"Joining Letter Issue"</strong> from the sidebar.</li>
+                    <li><span class="dot"></span> Only candidates with <strong>Verified</strong> status will appear here.</li>
+                    <li><span class="dot"></span> Click <strong>"Issue Letter"</strong> to mark the candidate's letter as issued (<code>issuedLetter = true</code>).</li>
+                    <li><span class="dot gold"></span> Use <strong>"Print Letter"</strong> to print or save the letter as a PDF.</li>
+                    <li><span class="dot green"></span> The letter issue date is automatically recorded in the system.</li>
+                </ul>
+                <div class="note-box"><strong>Note:</strong> A candidate becomes eligible for <strong>Posting Allotment</strong> only after their Joining Letter has been issued.</div>
+            </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">6</div>
+                <h3>Posting Allotment
+                    <span class="subtitle">Assigning candidates to a posting district</span>
+                </h3>
+                <i class="fa-solid fa-map-location-dot icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> Go to <strong>"Posting Allotment"</strong> from the sidebar.</li>
+                    <li><span class="dot"></span> Only candidates whose <strong>Letter has been Issued</strong> will appear here.</li>
+                    <li><span class="dot"></span> Click <strong>"Assign District"</strong> to assign any UP district to the candidate.</li>
+                    <li><span class="dot gold"></span> Use <strong>"District Capacities"</strong> to check available seats in each district before assigning.</li>
+                    <li><span class="dot green"></span> The allotment date is automatically recorded.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge">7</div>
+                <h3>Dashboard &amp; Reports
+                    <span class="subtitle">Summary statistics and filtered reports</span>
+                </h3>
+                <i class="fa-solid fa-gauge icon"></i>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot"></span> The Dashboard shows <strong>Summary Cards</strong> for Total Candidates, Verified, Pending, Letters Issued, and Posting Assigned.</li>
+                    <li><span class="dot"></span> Charts display <strong>Verification Status</strong> and <strong>District-wise</strong> distribution.</li>
+                    <li><span class="dot gold"></span> Click any card to open a <strong>filtered report</strong> (e.g., all Verified candidates).</li>
+                    <li><span class="dot green"></span> The Report page supports <strong>Excel Export</strong> for offline use.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Important Notes -->
+        <div class="sop-card">
+            <div class="sop-card-header">
+                <div class="step-badge"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h3>Important Rules &amp; Cautions</h3>
+            </div>
+            <div class="sop-card-body">
+                <ul class="steps-list">
+                    <li><span class="dot red"></span> Deleted records <strong>cannot be recovered</strong> — delete with caution.</li>
+                    <li><span class="dot red"></span> If a <strong>Duplicate Roll No.</strong> is found during Bulk Upload, the existing record will be overwritten.</li>
+                    <li><span class="dot gold"></span> Always update Certificate Details <strong>before</strong> attempting Verification, otherwise it will be rejected.</li>
+                    <li><span class="dot gold"></span> The system requires an <strong>Internet connection</strong> — all data is stored in a cloud database (Supabase).</li>
+                    <li><span class="dot green"></span> On first login, allow 10–15 seconds for the server to start — this is <strong>normal behaviour</strong>.</li>
+                    <li><span class="dot"></span> Always <strong>Logout</strong> before closing the browser session.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="sop-footer" style="margin-top:10px;">
+            © 2026 Uttar Pradesh Police | Joining Letter Management System | This SOP is for authorized users only.
+        </div>
+    </div>
+
+    <script>
+        function switchLang(lang) {
+            document.getElementById('content-hi').style.display = lang === 'hi' ? 'block' : 'none';
+            document.getElementById('content-en').style.display = lang === 'en' ? 'block' : 'none';
+            document.getElementById('btn-hi').classList.toggle('active', lang === 'hi');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            document.getElementById('print-label').textContent = lang === 'hi' ? 'SOP Print / Download करें' : 'Print / Download SOP';
+        }
+    </script>
+</body>
+</html>
