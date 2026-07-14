@@ -129,7 +129,7 @@
             const pass = document.getElementById('password').value;
             const errorMsg = document.getElementById('errorMsg');
 
-            if (user === 'Admin' && pass === '123') {
+            if (user.toLowerCase() === 'admin' && pass === '123') {
                 localStorage.setItem('isLoggedIn', 'true');
                 window.location.href = 'dashboard.html';
             } else {

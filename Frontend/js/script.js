@@ -1,7 +1,8 @@
 const API_URL = 'https://candidate-joining-letter-module.onrender.com/api';
 
 // Fetch helper with timeout to prevent slow page loads when backend or database is offline/sleeping
-async function fetchWithTimeout(url, options = {}, timeout = 2000) {
+// Timeout is 15s to allow Render.com free-tier server to wake up from sleep on first request
+async function fetchWithTimeout(url, options = {}, timeout = 15000) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     try {
@@ -277,7 +278,24 @@ function getStatusClass(status) {
 // --- Dashboard Page ---
 async function initDashboard() {
     showLoader();
+    // Show a friendly message while server wakes up (Render.com free tier sleeps after inactivity)
+    const loaderWrapper = document.getElementById('loader');
+    let wakeupMsg = null;
+    if (loaderWrapper) {
+        wakeupMsg = document.createElement('p');
+        wakeupMsg.id = 'wakeup-msg';
+        wakeupMsg.style.cssText = 'color:#fff; margin-top:12px; font-size:0.9rem; text-align:center; opacity:0.85;';
+        wakeupMsg.textContent = 'Server se data load ho raha hai, please wait...';
+        loaderWrapper.appendChild(wakeupMsg);
+        // After 3s, show a more descriptive message
+        setTimeout(() => {
+            if (wakeupMsg && wakeupMsg.parentNode) {
+                wakeupMsg.textContent = 'Server start ho raha hai, 10-15 seconds lagenge...';
+            }
+        }, 3000);
+    }
     await fetchData();
+    if (wakeupMsg && wakeupMsg.parentNode) wakeupMsg.parentNode.removeChild(wakeupMsg);
 
     const statsContainer = document.getElementById('dashboard-stats');
     if (statsContainer) {
